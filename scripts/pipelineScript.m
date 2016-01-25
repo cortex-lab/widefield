@@ -3,7 +3,7 @@
 % script to run Marius's SVD
 
 mouseName = 'Dale'; 
-thisDate = '2016-01-23';
+thisDate = '2016-01-24';
 
 fileBase = fullfile('L:\data\', mouseName, thisDate); % where the raw tif files are
 
@@ -21,7 +21,7 @@ ops.hasASCIIstamp = true;
 ops.hasBinaryStamp = true;
 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
-ops.nSVD = 3000; % number of SVD components to keep
+ops.nSVD = 2000; % number of SVD components to keep
 
 ops.useGPU = true;
 
@@ -47,17 +47,19 @@ if ~exist(datPath)
     if ops.doRegistration
         % if you want to do registration, we need to first determine the
         % target image. 
-        
+        tic
         fprintf(1, 'determining target image\n');
         [targetFrame, nFr] = generateRegistrationTarget(fileBase, ops);
         ops.Nframes = nFr;
-        
+        toc
     else
         targetFrame = [];
     end    
     
+    tic
     [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = loadRawToDat(fileBase, datPath, ops, targetFrame);
     save(fullfile(savePath, 'dataSummary.mat'), 'frameNumbers', 'imageMeans', 'timeStamps', 'meanImage', 'imageSize', 'regDs');
+    toc
 else
     load(fullfile(savePath, 'dataSummary.mat'));
 end

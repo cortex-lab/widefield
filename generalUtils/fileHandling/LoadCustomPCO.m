@@ -75,10 +75,10 @@ try
             
             if ~GetInfoOnly
                 Stack = m.Data(1).imagedata(:,:,2:end); %14.1.13 - DS
-            
-            else
-                Stack = m.Data(1).imagedata; %14.1.13 - DS
             end
+        elseif ~GetInfoOnly
+            Stack = m.Data(1).imagedata; %14.1.13 - DS
+            
         end
         % if there is zero gap between last two frames, drop the last
         if diff(TimeStamps(end-1:end)) < 0.5 *FrameInterval
@@ -96,6 +96,7 @@ try
     if GetInfoOnly, return;
     elseif ~doCorrect
         Stack  = m.Data(1).imagedata; %14.3.3 - DS
+        
     end
     
 catch err

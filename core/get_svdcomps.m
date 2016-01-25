@@ -147,7 +147,9 @@ else
     Sv              = Sv(1:ops.nSVD, 1:ops.nSVD);
 end
 
+clear COV
 U               = normc(mov * V);
+clear mov
 U               = single(U);
 Sv              = single(diag(Sv));
 toc
@@ -191,7 +193,7 @@ fclose(fid);
 toc
 
 
-V = Fs;
+V = Fs; clear Fs
 
 U = reshape(U, numel(ops.yrange), numel(ops.xrange), []);
 

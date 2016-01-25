@@ -55,4 +55,5 @@ if ops.verbose
     title('dsprealign');
     subplot(1,2,2); plot(ErrorInitialAlign);
     title('ErrorInitialAlign');
+    drawnow;
 end
