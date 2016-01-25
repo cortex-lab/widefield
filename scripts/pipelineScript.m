@@ -3,7 +3,7 @@
 % script to run Marius's SVD
 
 mouseName = 'Dale'; 
-thisDate = '2016-01-21';
+thisDate = '2016-01-23';
 
 fileBase = fullfile('L:\data\', mouseName, thisDate); % where the raw tif files are
 
@@ -68,8 +68,8 @@ if ops.doRegistration
     minDs = min(regDs, [], 1);
     maxDs = max(regDs, [], 1);
 
-    yrange = ceil(maxDs(1)):floor(Ly+minDs(1));
-    xrange = ceil(maxDs(2)):floor(Lx+minDs(2));    
+    ops.yrange = ceil(maxDs(1)):floor(ops.Ly+minDs(1));
+    ops.xrange = ceil(maxDs(2)):floor(ops.Lx+minDs(2));    
 else
     ops.yrange = 1:ops.Ly; % subselection/ROI of image to use
     ops.xrange = 1:ops.Lx;

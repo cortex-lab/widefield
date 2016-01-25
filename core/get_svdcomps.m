@@ -108,11 +108,11 @@ fclose(fid);
 toc
 mov(:, :, (ix+1):end) = [];
 
-mov = mov(ops.yrange, ops.xrange, :);
-
 % subtract mean here % TODO: compute the mean in the loop above rather than
 % requiring it be passed in
 mov = bsxfun(@minus, mov, single(ops.mimg));
+
+mov = mov(ops.yrange, ops.xrange, :);
 
 
 if ops.verbose
@@ -174,6 +174,9 @@ try
         data = single(data);
         data = reshape(data, Ly, Lx, []);
                 
+        % subtract mean as we did before
+        data = bsxfun(@minus, data, single(ops.mimg));
+        
         data = data(ops.yrange, ops.xrange, :);
         Fs(:, ix + (1:size(data,3))) = U' * reshape(data, [], size(data,3));
         
