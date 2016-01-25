@@ -27,11 +27,12 @@ fprintf(1, 'done.\n');
 ySize = size(U,1); xSize = size(U,2);
 corrData.Ur = Ur;
 corrData.covV = covV;
-corrData.varP = varP; 
+corrData.varP = varP;
 
 pixel = [1 1];
 
 f = figure; 
+corrData.f = f;
 
 set(f, 'UserData', pixel);
 set(f, 'KeyPressFcn', @(f,k)pixelCorrCallback(f, k, corrData, ySize, xSize));
@@ -67,7 +68,11 @@ colorbar
 colormap(colormap_blueblackred);
 % set(gca, 'YDir', 'normal');
 set(thisAx, 'ButtonDownFcn', @(f,k)pixelCorrCallbackClick(f, k, corrData, ySize, xSize));
-
+% p = get(corrData.f, 'Position'); UL = p(2)+p(3);
+% truesize(corrData.f, [ySize xSize]);
+% pnew = get(corrData.f, 'Position');
+% set(corrData.f, 'Position', [p(1) UL-pnew(4) pnew(3) pnew(4)]); 
+axis equal;
 title(sprintf('pixel %d, %d selected', pixel(1), pixel(2)));
 
 function pixelCorrCallbackClick(f, keydata, corrData, ySize, xSize)
