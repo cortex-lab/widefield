@@ -16,6 +16,7 @@ mkdir(savePath);
 
 ops.verbose = true;
 
+ops.rawDataType = 'tif'; % or 'customPCO'
 ops.hasASCIIstamp = true;
 ops.hasBinaryStamp = true;
 
@@ -55,7 +56,7 @@ if ~exist(datPath)
         targetFrame = [];
     end    
     
-    [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = tifToDat(fileBase, datPath, ops, targetFrame);
+    [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = loadRawToDat(fileBase, datPath, ops, targetFrame);
     save(fullfile(savePath, 'dataSummary.mat'), 'frameNumbers', 'imageMeans', 'timeStamps', 'meanImage', 'imageSize', 'regDs');
 else
     load(fullfile(savePath, 'dataSummary.mat'));

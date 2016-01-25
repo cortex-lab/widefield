@@ -3,10 +3,20 @@
 function [targetImg, nFr] = generateRegistrationTarget(fileBase, ops)
 
 % fileBase is a directory with a bunch of tif files. 
-theseFilesDir = dir(fullfile(fileBase, '*.tif'));
+switch ops.rawDataType
+    case 'tif'
+        theseFilesDir = dir(fullfile(fileBase, '*.tif'));
+    case 'customPCO'
+        theseFilesDir = dir(fullfile(fileBase, '*.mat'));
+end
 theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
 
-[nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles);
+switch ops.rawDataType
+    case 'tif'
+        [nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles);
+    case 'customPCO'
+        [nFr, nFrPerFile] = getNFramesFromCustomPCOFiles(theseFiles);
+end
 
 imgInds = 1:ceil(nFr/ops.NimgFirstRegistration):nFr; % want these frames, evenly distributed from the recording
 
@@ -23,7 +33,12 @@ end
 for ind = 2:length(imgInds)
     fileInd = find(cumFrameCount<imgInds(ind),1,'last');
     frInd = imgInds(ind)-cumFrameCount(fileInd);
-    thisFrame = imread(theseFiles{fileInd}, frInd);
+    switch ops.rawDataType
+        case 'tif'
+            thisFrame = imread(theseFiles{fileInd}, frInd);
+        case 'customPCO'
+            thisFrame = readOneCustomPCO(theseFiles{fileInd}, frInd);
+    end
     firstRegFrames(:,:,ind) = thisFrame;
 end
 

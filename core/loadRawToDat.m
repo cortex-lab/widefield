@@ -1,6 +1,6 @@
 
 
-function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = tifToDat(fileBase, datPath, ops, targetFrame)
+function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = loadRawToDat(fileBase, datPath, ops, targetFrame)
 % converts a set of tif files in a directory (specified by fileBase) to a
 % flat binary (dat) file in datPath. While doing so,
 
@@ -15,12 +15,12 @@ theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutpu
 
 if ~isfield(ops, 'Nframes') || isempty(ops.Nframes)
     switch ops.rawDataType
-    case 'tif'
-        nFrames = getNFramesFromTifFiles(theseFiles);
-    case 'customPCO'
-        nFrames = getNFramesFromCustomPCOFiles(theseFiles);
+        case 'tif'
+            nFrames = getNFramesFromTifFiles(theseFiles);
+        case 'customPCO'
+            nFrames = getNFramesFromCustomPCOFiles(theseFiles);
     end
-    
+
 else
     nFrames = ops.Nframes;
 end
@@ -32,14 +32,20 @@ imageMeans = zeros(1,nFrames);
 try
     fid = fopen(datPath, 'w');
     frameIndex = 0;
-    for fileInd = 1:length(theseFiles)
+    for fileInd = 1:5%length(theseFiles)
         
         thisFile = theseFiles{fileInd};
         
         fprintf(1, 'loading file: %s (%d of %d)\n', thisFile, fileInd, length(theseFiles));
         
         clear imstack
-        imstack = loadTiffStack(thisFile, 'tiffobj');
+        switch ops.rawDataType
+            case 'tif'
+                imstack = loadTiffStack(thisFile, 'tiffobj');
+            case 'customPCO'
+                [~,~,~,imstack] = LoadCustomPCO(thisFile, false, true);
+        end
+        
         
         nfr = size(imstack,3);
         
@@ -55,14 +61,23 @@ try
         if ops.hasBinaryStamp
             fprintf(1, '  computing timestamps\n');
             
-            records = squeeze(imstack(1,1:14,:));
-            [thisFN, thisTS] = timeFromPCOBinaryMulti(records);
-            if fileInd==1
-                firstTS=thisTS(1);
+            switch ops.rawDataType
+                case 'tif'
+                    records = squeeze(imstack(1,1:14,:));
+                    [thisFN, thisTS] = timeFromPCOBinaryMulti(records);
+                    if fileInd==1
+                        firstTS=thisTS(1);
+                    end
+                    frameNumbers(frameIndex+1:frameIndex+nfr) = thisFN;
+                    timeStamps(frameIndex+1:frameIndex+nfr) = thisTS-firstTS;
+                case 'customPCO'
+                    frameNumbers(frameIndex+1:frameIndex+nfr) = NaN;
+                    [~,~,thisTS] = LoadCustomPCO(thisFile, false, true);
+                    if fileInd==1
+                        firstTS=thisTS(1);
+                    end
+                    timeStamps(frameIndex+1:frameIndex+nfr) = thisTS-firstTS;
             end
-            frameNumbers(frameIndex+1:frameIndex+nfr) = thisFN;
-            timeStamps(frameIndex+1:frameIndex+nfr) = thisTS-firstTS;
-            
         end
         
         if ops.doRegistration && ~isempty(targetFrame)
@@ -85,6 +100,9 @@ try
             end
         else
             regFrames = imstack;
+            if fileInd==1
+                regDs = zeros(nfr,2);
+            end
         end
         
         fprintf(1, '  computing mean image\n');

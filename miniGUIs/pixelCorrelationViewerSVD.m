@@ -45,7 +45,7 @@ function showCorrMat(corrData, ySize, xSize, pixel)
 % this is not the fastest way to get the pixel index, but it's the fastest
 % for me to think about...
 rshpInds = reshape(1:numel(corrData.varP), ySize, xSize);
-pixelInd = rshpInds(pixel(1),pixel(2));
+pixelInd = rshpInds(pixel(2),xSize-pixel(1));
 
 Ur = corrData.Ur;
 covV = corrData.covV;
@@ -57,7 +57,7 @@ corrMat = covP./stdPxPy; % 1 x P
 
 
 thisAx = subplot(1,1,1);
-h = imagesc(reshape(corrMat, ySize, xSize)); set(h, 'HitTest', 'off');
+h = imagesc(flipud(reshape(corrMat, ySize, xSize)')); set(h, 'HitTest', 'off');
 hold on; 
 plot(pixel(2), pixel(1), 'ro');
 hold off;
