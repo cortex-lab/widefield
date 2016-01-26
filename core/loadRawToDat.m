@@ -34,7 +34,7 @@ imageMeans = zeros(1,nFrames);
 try
     fid = fopen(datPath, 'w');
     frameIndex = 0;
-    for fileInd = 1:5%length(theseFiles)
+    for fileInd = 1:length(theseFiles)
         
         thisFile = theseFiles{fileInd};
         
