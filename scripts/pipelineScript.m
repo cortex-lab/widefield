@@ -2,26 +2,29 @@
 
 % script to run Marius's SVD
 
-mouseName = 'Dale'; 
-thisDate = '2016-01-24';
+ops.mouseName = 'Dale'; 
+ops.thisDate = '2016-01-24';
+ops.rigName = 'bigrig';
 
-fileBase = fullfile('L:\data\', mouseName, thisDate); % where the raw tif files are
+fileBase = fullfile('L:\data\', ops.mouseName, ops.thisDate); % where the raw tif files are
 
-datPath = fullfile('J:\', mouseName, thisDate, [thisDate '.dat']); % file to create. 
+datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']); % file to create. 
 % should be a fast, local drive. Need disk space equal to the size of the
 % raw tif files. 
 
-savePath = fullfile('J:\', mouseName, thisDate); % where to put results. 
+savePath = fullfile('J:\', ops.mouseName, ops.thisDate); % where to put results. 
 mkdir(savePath);
 
 ops.verbose = true;
 
 ops.rawDataType = 'tif'; % or 'customPCO'
-ops.hasASCIIstamp = true;
-ops.hasBinaryStamp = true;
+ops.hasASCIIstamp = true; % if your movie has legible timestamps in the corner
+ops.hasBinaryStamp = true; % if the binary time stamps were turned on
 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
 ops.nSVD = 2000; % number of SVD components to keep
+
+ops.Fs = 50; % sampling rate of the movie
 
 ops.useGPU = true;
 
@@ -29,10 +32,10 @@ ops.RegFile = datPath;
 
 % registration parameters
 ops.doRegistration = true;
-ops.NimgFirstRegistration  = 750;
-ops.NiterPrealign          = 10;
-ops.SubPixel               = Inf;
-ops.RegPrecision = 'same';
+ops.NimgFirstRegistration  = 750; % could use a smaller value if your movie is short? probably this is fine
+ops.NiterPrealign          = 10; % increase this if "ErrorInitialAlign" doesn't go to zero
+ops.SubPixel               = Inf; % leave alone
+ops.RegPrecision = 'same'; % leave alone
 ops.phaseCorrelation = true; % controls whitening - seems to work better with this on
 ops.nRegisterBatchLimit = 750; % won't try to register more than this at once - for me I get memory errors with more than 750. 
 
@@ -93,3 +96,37 @@ ops.ResultsSaveFilename = fullfile(savePath, 'SVDresults.mat');
 tic
 [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
 toc
+
+%%
+svdViewer(U, Sv, V, ops.Fs, totalVar)
+
+
+%% after reviewing the SVD, you want to do these:
+
+nKeep = 1200; % or however much you want
+U = U(:,:,1:nKeep); V = V(1:nKeep,:); Sv = Sv(1:nKeep);
+
+% here there should [will] be code to split the frames up into experiments
+% by looking at exposure strobes from timeline. For now:
+nExp = 1;
+nFrPerExp = [];
+timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
+while exist(timelinePath)
+    load(timelinePath)
+    strobeTimes = getStrobeTimes(Timeline, ops.rigName);
+    nFrPerExp(nExp) = numel(strobeTimes);
+    nExp = nExp+1;
+    timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
+end
+
+assert(sum(nFrPerExp)==size(V,2), 'Incorrect number of frames in the movie relative to the number of strobes detected. Will not save data to server.');
+
+% upload results to server
+filePath = dat.expPath(ops.mouseName, ops.thisDate, 1, 'widefield', 'master');
+Upath = filePath(1:end-1); % root for the date - we'll put U (etc) and data summary here
+if ~exist(Upath)
+    mkdir(Upath);
+end
+svdFilePath = dat.expFilePath(ops.mouseName, ops.thisDate, 1, 'calcium-widefield-svd', 'master');
+save(svdFilePath, '-v7.3', 'U', 'Sv', 'V', 'ops', 'totalVar'); 
+save(fullfile(filePath, 'dataSummary'), 'frameNumbers', 'imageMeans', 'timeStamps', 'meanImage', 'imageSize', 'regDs');
