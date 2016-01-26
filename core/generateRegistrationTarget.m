@@ -16,13 +16,13 @@ theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutpu
 switch ops.rawDataType
     case 'tif'
         [nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles);
+        firstFrame = imread(theseFiles{1}, 1);
     case 'customPCO'
         [nFr, nFrPerFile] = getNFramesFromCustomPCOFiles(theseFiles);
+        firstFrame = readOneCustomPCO(theseFiles{1}, 1);
 end
 
 imgInds = 1:ceil(nFr/ops.NimgFirstRegistration):nFr; % want these frames, evenly distributed from the recording
-
-firstFrame = imread(theseFiles{1}, 1);
 
 firstRegFrames = zeros(size(firstFrame,1), size(firstFrame,2), numel(imgInds));
 firstRegFrames(:,:,1) = firstFrame;

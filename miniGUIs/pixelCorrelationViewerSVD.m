@@ -2,6 +2,12 @@
 function pixelCorrelationViewerSVD(U, V)
 % U is Ysize x Xsize x S
 % V is S x T
+%
+% Usage:
+% - Click any pixel to select it and see its correlation matrix
+% - Use the arrow keys to move around little by little
+% - Press "V" to change the way the variance is calculated, to emphasize
+% areas with large signals.
 
 % to compute correlation matrix from SVD, all at once:
 % Ur = reshape(U, size(U,1)*size(U,2),[]); % P x S
@@ -29,18 +35,22 @@ corrData.Ur = Ur;
 corrData.covV = covV;
 corrData.varP = varP;
 
-pixel = [1 1];
+ud.pixel = [1 1];
+ud.varCalcMax = false;
 
 f = figure; 
 corrData.f = f;
 
-set(f, 'UserData', pixel);
+set(f, 'UserData', ud);
 set(f, 'KeyPressFcn', @(f,k)pixelCorrCallback(f, k, corrData, ySize, xSize));
 
-showCorrMat(corrData, ySize, xSize, pixel);
+showCorrMat(corrData, ySize, xSize, ud);
 
 
-function showCorrMat(corrData, ySize, xSize, pixel)
+function showCorrMat(corrData, ySize, xSize, ud)
+
+pixel = ud.pixel;
+varCalcMax = ud.varCalcMax;
 
 % this is not the fastest way to get the pixel index, but it's the fastest
 % for me to think about...
@@ -52,7 +62,11 @@ covV = corrData.covV;
 varP = corrData.varP;
 
 covP = Ur(pixelInd,:)*covV*Ur'; % 1 x P
-stdPxPy = varP(pixelInd).^0.5 * varP.^0.5; % 1 x P
+if varCalcMax
+    stdPxPy = varP(pixelInd).^0.5 * max(varP(:)).^0.5; % 1 x P
+else
+    stdPxPy = varP(pixelInd).^0.5 * varP.^0.5; % 1 x P
+end
 corrMat = covP./stdPxPy; % 1 x P
 
 
@@ -83,13 +97,17 @@ clickY = keydata.IntersectionPoint(2);
 
 pixel = round([clickY clickX]);
 
-set(figHand, 'UserData', pixel);
-showCorrMat(corrData, ySize, xSize, pixel);
+ud = get(figHand, 'UserData');
+ud.pixel = pixel;
+set(figHand, 'UserData', ud);
+showCorrMat(corrData, ySize, xSize, ud);
 
 
 function pixelCorrCallback(f, keydata, corrData, ySize, xSize)
-pixel = get(f, 'UserData');
-switch keydata.Key
+ud = get(f, 'UserData');
+pixel = ud.pixel;
+varCalcMax = ud.varCalcMax;
+switch lower(keydata.Key)
     case 'rightarrow'
         pixel(2) = pixel(2)+5;
     case 'leftarrow'
@@ -97,7 +115,11 @@ switch keydata.Key
     case 'uparrow'
     	pixel(1) = pixel(1)-5;
     case 'downarrow'
-        pixel(1) = pixel(1)+5;    
+        pixel(1) = pixel(1)+5; 
+    case 'v'
+        varCalcMax = ~varCalcMax;
 end
-set(f, 'UserData', pixel);
-showCorrMat(corrData, ySize, xSize, pixel);
+ud.pixel = pixel;
+ud.varCalcMax = varCalcMax;
+set(f, 'UserData', ud);
+showCorrMat(corrData, ySize, xSize, ud);

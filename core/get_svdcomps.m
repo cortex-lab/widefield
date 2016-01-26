@@ -197,7 +197,7 @@ V = Fs; clear Fs
 
 U = reshape(U, numel(ops.yrange), numel(ops.xrange), []);
 
-if isfield(ops, 'ResultsSaveFilename')
+if isfield(ops, 'ResultsSaveFilename') && ~isempty(ops.ResultsSaveFilename)
     outputFilename = ops.ResultsSaveFilename;
     save(outputFilename, '-v7.3', 'U', 'Sv', 'V', 'ops', 'totalVar');
 end
