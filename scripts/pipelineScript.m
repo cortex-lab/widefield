@@ -10,7 +10,7 @@ mkdir(ops.localSavePath);
 % This is also the place to do image registration if desired, so that the
 % binary file will contain the registered images.
 
-if ~exist(datPath)
+if ~exist(ops.datPath)
     
     if ops.doRegistration
         % if you want to do registration, we need to first determine the
@@ -26,7 +26,7 @@ if ~exist(datPath)
     
     tic
     [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = ...
-        loadRawToDat(ops.fileBase, datPath, ops, targetFrame);
+        loadRawToDat(ops.fileBase, ops.datPath, ops, targetFrame);
     dataSummary.frameNumbers = frameNumbers;
     dataSummary.imageMeans = imageMeans;
     dataSummary.timeStamps = timeStamps;

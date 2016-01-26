@@ -1,12 +1,17 @@
 
 function svdViewer(U, Sv, V, Fs, varargin)
 % function svdViewer(U, Sv, V, Fs[, totalVariance])
-% SVD viewer. Use left/right arrow keys to go forward/back through the
-% components. Click on the spatial map or press p to show reconstructions
-% of a particular pixel. You can zoom with the zoom tool on the trace
-% plots (and you should, if you are looking at pixel reconstructions, for 
-% speed), but you have to go out of zoom mode to use the hotkeys again. If
-% zoom gets stuck zoomed-in, use z to reset it. 
+% SVD viewer. 
+%
+% Usage:
+% - Use left/right arrow keys to go forward/back through the
+% components. Or click on the variance explained plot to select one.
+% - Click on the spatial map or press p to show reconstructions
+% of a particular pixel. 
+% - You can zoom with the zoom tool on the trace plots (and you should, if 
+% you are looking at pixel reconstructions, for speed), but you have to go 
+% out of zoom mode to use the hotkeys again. If zoom gets stuck zoomed-in, 
+% use z to reset it. 
 %
 % TODO: add spatial power spectrum
 

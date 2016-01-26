@@ -36,7 +36,7 @@ ops.Fs = 50; % sampling rate of the movie
 
 ops.useGPU = true;
 
-ops.RegFile = datPath;
+ops.RegFile = ops.datPath;
 
 % registration parameters
 ops.doRegistration = true;
