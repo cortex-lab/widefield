@@ -52,7 +52,7 @@ function showCorrMat(corrData, ySize, xSize, ud)
 pixel = ud.pixel;
 varCalcMax = ud.varCalcMax;
 
-pixelInd = sub2ind([ySize, xSize], pixel(2), xSize-pixel(1)+1);
+pixelInd = sub2ind([ySize, xSize], pixel(1), pixel(2));
 
 Ur = corrData.Ur;
 covV = corrData.covV;
@@ -72,14 +72,14 @@ ch = get(thisAx, 'Children');
 [imageExists, ind] = ismember('image', get(ch, 'Type'));
 if imageExists
     h = ch(ind);
-    set(h, 'CData', flipud(reshape(corrMat, ySize, xSize)'));
+    set(h, 'CData', reshape(corrMat, ySize, xSize));
     % BIG assumption here - if an image exists, then a circle marker exists, 
     % and only one marker
     [~, ind] = ismember('line', get(ch, 'Type'));
     set(ch(ind), 'XData', pixel(2), 'YData', pixel(1))
 else
     % this will happen on the first run
-    h = imagesc(flipud(reshape(corrMat, ySize, xSize)'));
+    h = imagesc(reshape(corrMat, ySize, xSize));
     axis equal tight;
     hold on;
     % green circle should be better, because does not belong to the colormap
@@ -162,20 +162,24 @@ if currentView(2)<0
     new = new([3, 2, 1, 4]);
 end;
 [~, ind] = ismember(lower(keydata.Key), original);
-newKey = new{ind};
+if ind
+    newKey = new{ind};
+else
+    newKey = lower(keydata.Key);
+end
 
 % the xSize and ySize limits below are confusing, but these are because of
 % the transpose during imagesc() in showCorrMat()
 % switch lower(keydata.Key)
 switch newKey
     case 'rightarrow'
-        pixel(2) = min(ySize, pixel(2)+increment);
+        pixel(2) = min(xSize, pixel(2)+increment);
     case 'leftarrow'
         pixel(2) = max(1, pixel(2)-increment);
     case 'uparrow'
         pixel(1) = max(1, pixel(1)-increment);
     case 'downarrow'
-        pixel(1) = min(xSize, pixel(1)+increment);
+        pixel(1) = min(ySize, pixel(1)+increment);
     case 'v'
         varCalcMax = ~varCalcMax;
 end
