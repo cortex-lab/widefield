@@ -7,17 +7,20 @@ function ops = setSVDParams()
 
 ops.mouseName = 'M150416_MK020'; 
 ops.thisDate = '2015-08-03';
+ops.iSeries = 20150803;
+ops.iExp = 1;
+ops.ExpRef = dat.constructExpRef(ops.mouseName, ops.thisDate, ops.iExp);
 
 ops.rigName = 'bigrig';
 
 % ops.fileBase = fullfile('L:\data\', ops.mouseName, ops.thisDate); % where the raw tif files are
-ops.fileBase = 'W:\GCAMP\M150416_MK020\20150803\1\';
+ops.fileBase = fullfile('\\zserver2\Data\GCAMP\', ops.mouseName, num2str(ops.iSeries), num2str(ops.iExp));
 
-ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']); % file to create. 
+ops.datPath = fullfile('G:\WF', ops.mouseName, ops.thisDate, [ops.ExpRef, '.dat']); % file to create. 
 % should be a fast, local drive. Need disk space equal to the size of the
 % raw tif files. 
 
-ops.localSavePath = fullfile('J:\', ops.mouseName, ops.thisDate); % where to put results temporarily on a local disk. 
+ops.localSavePath = fullfile('G:\WF', ops.mouseName, ops.thisDate, ops.ExpRef); % where to put results temporarily on a local disk. 
 
 ops.verbose = true;
 
@@ -30,11 +33,11 @@ ops.hasASCIIstamp = false; % if your movie has legible timestamps in the corner
 ops.hasBinaryStamp = false; % if the binary time stamps were turned on
 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
-ops.nSVD = 2000; % number of SVD components to keep
+ops.nSVD = 1000; % number of SVD components to keep
 
 ops.Fs = 50; % sampling rate of the movie
 
-ops.useGPU = true;
+ops.useGPU = false;
 
 ops.RegFile = ops.datPath;
 
