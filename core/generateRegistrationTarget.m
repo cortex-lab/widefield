@@ -8,6 +8,8 @@ switch ops.rawDataType
         theseFilesDir = dir(fullfile(fileBase, '*.tif'));
     case 'customPCO'
         theseFilesDir = dir(fullfile(fileBase, '*.mat'));
+        [~,ii] = sort([theseFilesDir.datenum]);
+        theseFilesDir = theseFilesDir(ii);
 end
 theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
 
