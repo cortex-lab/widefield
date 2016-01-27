@@ -2,7 +2,7 @@
 
 % script to run Marius's SVD
 
-addpath(genpath('..\'));
+
 ops = setSVDParams();
 if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
