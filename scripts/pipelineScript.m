@@ -1,16 +1,25 @@
 
 
-% script to run Marius's SVD
+% script to run Marius's SVD. To use it, first copy setSVDParams.m into the
+% root directory of this repository and rename it to mySetSVDparams.m. Edit
+% that file with the options you want. Then run:
 
-ops = setSVDParams();
-if ~exist(ops.localSavePath, 'dir')
-    mkdir(ops.localSavePath);
-end
+% >> ops = mySetSVDparams();
+
+% Then run this script. 
+
+
+
 
 %% First step, convert the tif files into a binary file. 
 % Along the way we'll compute timestamps, meanImage, etc. 
 % This is also the place to do image registration if desired, so that the
 % binary file will contain the registered images.
+
+if ~exist(ops.localSavePath, 'dir')
+    mkdir(ops.localSavePath);
+end
+
 
 if ~exist(ops.datPath)
     
