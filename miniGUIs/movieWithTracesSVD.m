@@ -30,11 +30,11 @@ ud.figInitialized = false;
 
 if exist('movieSaveFilePath')
     WriterObj = VideoWriter(movieSaveFilePath);
-    WriterObj.FrameRate=12.5;
+    WriterObj.FrameRate=50;
     open(WriterObj);
     ud.WriterObj = WriterObj;
-    ud.recording = true;
-    set(figHandle, 'Name', 'RECORDING');
+    ud.recording = false;
+    set(figHandle, 'Name', 'NOT RECORDING');
 else
     ud.WriterObj = [];
     ud.recording = false;
@@ -60,8 +60,8 @@ function showNextFrame(h,e,figHandle, allData)
 ud = get(figHandle, 'UserData');
 
 if ~ud.figInitialized
-    ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
-
+%     ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
+    ax = axes();
     ud.ImageAxisHandle = ax;
     myIm = imagesc(svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));     
     ud.ImageHandle = myIm;
@@ -87,7 +87,7 @@ if ud.playing
     drawnow;
     ud.currentFrame = ud.currentFrame+ud.rate;
     
-    if ~isempty(ud.WriterObj)
+    if ~isempty(ud.WriterObj) && ud.recording
         frame = getframe;
         writeVideo(ud.WriterObj,frame);
     end
