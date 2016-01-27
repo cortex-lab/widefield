@@ -3,7 +3,9 @@
 % script to run Marius's SVD
 
 ops = setSVDParams();
-mkdir(ops.localSavePath);
+if ~exist(ops.localSavePath, 'dir')
+    mkdir(ops.localSavePath);
+end
 
 %% First step, convert the tif files into a binary file. 
 % Along the way we'll compute timestamps, meanImage, etc. 
