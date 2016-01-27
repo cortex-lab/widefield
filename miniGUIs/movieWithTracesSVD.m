@@ -27,6 +27,8 @@ ud.currentFrame = 1;
 ud.rate = 1;
 ud.playing = true;
 ud.figInitialized = false;
+ud.pixel = [1 1];
+ud.pixelTrace = squeeze(allData.U(ud.pixel(1), ud.pixel(2), :))' * allData.V;
 
 if exist('movieSaveFilePath')
     WriterObj = VideoWriter(movieSaveFilePath);
@@ -58,10 +60,11 @@ start(myTimer);
 function showNextFrame(h,e,figHandle, allData)
 
 ud = get(figHandle, 'UserData');
+windowSize = 10;
 
 if ~ud.figInitialized
-%     ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
-    ax = axes();
+    ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
+%     ax = axes();
     ud.ImageAxisHandle = ax;
     myIm = imagesc(svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));     
     ud.ImageHandle = myIm;
@@ -69,31 +72,92 @@ if ~ud.figInitialized
     colormap(colormap_blueblackred);
     axis equal tight;
     colorbar
-    axis off        
+    axis off     
+%     set(myIm, 'HitTest', 'off');
+    set(myIm, 'ButtonDownFcn', @(f,k)movieCallbackClick(f, k, allData, figHandle));
+
     
-    % initialize any trace plots here. Use subtightplot and axis off except
-    % the bottom one. 
+    % initialize any trace plots here. Use subtightplot and axis off (except
+    % the bottom one?)     
+    nSP = length(allData.tracesT)+1;
+    currTime = allData.t(ud.currentFrame);    
+    for tInd = 1:nSP-1
+        ax = subtightplot(nSP,2,(tInd-1)*2+2, 0.01, 0.01, 0.01);
+        ud.traceAxes(tInd) = ax;
+        thisT = allData.tracesT{tInd};
+        inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
+        q = plot(thisT(inclT), allData.tracesV{tInd}(inclT));
+        ud.traceHandles(tInd) = q;
+        axis off
+        xlim([currTime-windowSize/2 currTime+windowSize/2]);
+        yl = ylim();
+        hold on;
+        q = plot([currTime currTime], yl, 'k--');
+        ud.traceZeroBars(tInd) = q;
+        makepretty;
+    end
     
-    
+    % one more for the selected pixel
+    ax = subtightplot(nSP,2,(nSP-1)*2+2, 0.01, 0.01, 0.01);
+    ud.traceAxes(nSP) = ax;
+    thisT = allData.t;
+    inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
+    q = plot(thisT(inclT), ud.pixelTrace(inclT)); 
+    ud.traceHandles(nSP) = q;
+    hold on;
+    yl = ylim();
+    axis off
+    q = plot([currTime currTime], yl, 'k--');    
+    ud.traceZeroBars(nSP) = q;
+    xlim([currTime-5 currTime+5]);
+    makepretty;
     
     ud.figInitialized = true;
+    set(figHandle, 'UserData', ud);
 end
 
 if ud.playing
     set(ud.ImageHandle, 'CData', svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));    
+        
+    currTime = allData.t(ud.currentFrame);
+    set(get(ud.ImageAxisHandle, 'Title'), 'String', sprintf('time %.2f, rate %d', currTime, ud.rate));              
     
-    set(get(ud.ImageAxisHandle, 'Title'), 'String', sprintf('frame %d, rate %d', ud.currentFrame, ud.rate));              
+    nSP = length(allData.tracesT)+1;
+    for n = 1:nSP
+        ax = ud.traceAxes(n);        
+        set(ud.traceZeroBars(n), 'XData', [currTime currTime]);
+        
+        if n<nSP
+            thisT = allData.tracesT{n};
+            inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
+            set(ud.traceHandles(n), 'XData', thisT(inclT), 'YData', allData.tracesV{n}(inclT));
+        elseif n==nSP
+            thisT = allData.t;
+            inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
+            set(ud.traceHandles(n), 'XData', thisT(inclT), 'YData', ud.pixelTrace(inclT));
+            mx =  max(ud.pixelTrace(inclT));
+            mn = min(ud.pixelTrace(inclT));
+            if mx>mn
+                ylim(ud.traceAxes(n), [mn mx]);
+            end
+        end
+        xlim(ax, [currTime-windowSize/2 currTime+windowSize/2]);
+        
+    end
     
     drawnow;
+    
+    ud = get(figHandle, 'UserData');
     ud.currentFrame = ud.currentFrame+ud.rate;
+    set(figHandle, 'UserData', ud);
     
     if ~isempty(ud.WriterObj) && ud.recording
-        frame = getframe;
+        frame = getframe(figHandle);
         writeVideo(ud.WriterObj,frame);
     end
 end
 
-set(figHandle, 'UserData', ud);
+
 
 
 
@@ -151,6 +215,21 @@ end
 
 
 set(figHandle, 'UserData', ud);
+
+function movieCallbackClick(f, keydata, allData, figHandle)
+
+clickX = keydata.IntersectionPoint(1);
+clickY = keydata.IntersectionPoint(2);
+
+pixel = round([clickY clickX]);
+
+fprintf(1, 'new pixel %d, %d\n', pixel(1), pixel(2));
+
+ud = get(figHandle, 'UserData');
+ud.pixel = pixel;
+ud.pixelTrace = squeeze(allData.U(pixel(1), pixel(2), :))' * allData.V;
+set(figHandle, 'UserData', ud);
+
 
 function closeFigure(s,c,myTimer)
 stop(myTimer)
