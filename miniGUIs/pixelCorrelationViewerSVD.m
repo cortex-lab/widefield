@@ -168,9 +168,6 @@ else
     newKey = lower(keydata.Key);
 end
 
-% the xSize and ySize limits below are confusing, but these are because of
-% the transpose during imagesc() in showCorrMat()
-% switch lower(keydata.Key)
 switch newKey
     case 'rightarrow'
         pixel(2) = min(xSize, pixel(2)+increment);
