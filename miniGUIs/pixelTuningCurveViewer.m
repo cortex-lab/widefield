@@ -152,7 +152,7 @@ q = imagesc(allFrames(:,:,thisTimePoint,thisCond)); set(q, 'HitTest', 'off');
 hold on;
 q = plot(thisPixel(2), thisPixel(1), 'ro'); set(q, 'HitTest', 'off');
 hold off;
-set(gca, 'YDir', 'normal');
+% set(gca, 'YDir', 'normal');
 caxis(cax);
 colorbar
 title(sprintf('pixel %d, %d selected', thisPixel(1), thisPixel(2)));
@@ -193,10 +193,12 @@ q = plot(cLabels, tc, 'ko-'); hold on; set(q, 'HitTest', 'off');
 q = plot(cLabels(thisCond), tc(thisCond), 'k*'); set(q, 'HitTest', 'off');
 hold off;
 ylim(cax);
-midC = (cLabels(end)+cLabels(1))/2; cRange = [cLabels(end)-cLabels(1)]*1.1;
-xlim([midC-cRange/2 midC+cRange/2]);
-xlabel('contrast (%)');
-title(sprintf('contrast %.2f selected', cLabels(thisCond)));
+if numel(cLabels)>1
+    midC = (cLabels(end)+cLabels(1))/2; cRange = [cLabels(end)-cLabels(1)]*1.1;
+    xlim([midC-cRange/2 midC+cRange/2]);
+end
+xlabel('condition value');
+title(sprintf('value %.2f selected', cLabels(thisCond)));
 ylim(cax);
 set(thisAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allFrames, cLabels, timePoints));
 set(thisAx, 'Tag', 'tuningCurves');

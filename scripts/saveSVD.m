@@ -27,9 +27,10 @@ if ~exist(Upath)
     mkdir(Upath);
 end
 
-% save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U', 'Sv', 'ops', 'totalVar');
+save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U', 'Sv', 'ops', 'totalVar');
 save(fullfile(Upath, 'dataSummary'), 'dataSummary');
 
+allDS = dataSummary;
 allV = V;    
 fileInds = cumsum([0 nFrPerExp]);
 
@@ -40,6 +41,13 @@ for n = 1:numExps
     V = allV(:,fileInds(n)+1:fileInds(n+1));
     t = allT{n};
     save(svdFilePath, '-v7.3', 'V', 't'); 
+    
+    dsFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master') '_summary'];
+    dataSummary.frameNumbers = allDS.frameNumbers(fileInds(n)+1:fileInds(n+1));
+    dataSummary.imageMeans = allDS.imageMeans(fileInds(n)+1:fileInds(n+1));
+    dataSummary.timeStamps = allDS.timeStamps(fileInds(n)+1:fileInds(n+1));
+    dataSummary.regDs = allDS.regDs(fileInds(n)+1:fileInds(n+1),:);
+    save(dsFilePath, 'dataSummary');
     
 end
 
