@@ -4,6 +4,7 @@ function saveSVD(ops, U, V, Sv, totalVar, dataSummary)
 
 fprintf(1, 'saving SVD results to server... \n');
 
+fprintf(1, '  loading timeline files to determine alignments... \n');
 nExp = 1;
 nFrPerExp = [];
 timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
@@ -18,6 +19,8 @@ end
 
 assert(sum(nFrPerExp)==size(V,2), 'Incorrect number of frames in the movie relative to the number of strobes detected. Will not save data to server.');
 
+fprintf(1, '  alignments correct. \n');
+
 numExps = nExp-1;
 
 % upload results to server
@@ -27,6 +30,7 @@ if ~exist(Upath)
     mkdir(Upath);
 end
 
+fprintf(1, '  saveing U... \n');
 save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U', 'Sv', 'ops', 'totalVar');
 save(fullfile(Upath, 'dataSummary'), 'dataSummary');
 
@@ -35,6 +39,7 @@ allV = V;
 fileInds = cumsum([0 nFrPerExp]);
 
 for n = 1:numExps
+    fprintf(1, '  saveing V for exp %d... \n', n);
     filePath = dat.expPath(ops.mouseName, ops.thisDate, n, 'widefield', 'master');
     mkdir(filePath);
     svdFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master') '_V'];

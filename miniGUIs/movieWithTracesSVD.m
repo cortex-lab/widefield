@@ -19,6 +19,9 @@ allData.t = t;
 if ~isempty(tracesT)
     allData.tracesT = tracesT;
     allData.tracesV = tracesV;
+else
+    allData.tracesT = {};
+    allData.tracesV = {};
 end
 
 figHandle = figure; 
@@ -87,6 +90,9 @@ if ~ud.figInitialized
         thisT = allData.tracesT{tInd};
         inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
         q = plot(thisT(inclT), allData.tracesV{tInd}(inclT));
+        if isempty(q)
+            q = plot(0,0);
+        end
         ud.traceHandles(tInd) = q;
         axis off
         xlim([currTime-windowSize/2 currTime+windowSize/2]);

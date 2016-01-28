@@ -19,7 +19,7 @@
 if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
 end
-
+save(fullfile(ops.localSavePath, 'ops.mat'), ops);
 
 if ~exist(ops.datPath)
     
@@ -79,6 +79,8 @@ ops.ResultsSaveFilename = [];
 tic
 [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
 toc
+
+save(fullfile(ops.localSavePath, 'SVD_results'), '-v7.3', 'U', 'Sv', 'V', 'totalVar');
 
 %%
 svdViewer(U, Sv, V, ops.Fs, totalVar)
