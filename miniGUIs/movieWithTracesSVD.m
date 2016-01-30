@@ -46,6 +46,8 @@ ud.figInitialized = false;
 ud.pixel = {[1 1]};
 ud.pixelTrace = (squeeze(allData.U(ud.pixel{1}(1), ud.pixel{1}(2), :))' * allData.V)';
 
+ud.cax = [-0.4 0.4];
+
 ud.nColors = 5;
 % pixColors = hsv(nColors);
 ud.pixColors =  ... % default color order
@@ -92,7 +94,7 @@ windowSize = 10;
 
 nColors = ud.nColors; pixColors = ud.pixColors;
 
-cax = [-0.4 0.4];
+cax = ud.cax;
 
 if ~ud.figInitialized
     ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
@@ -231,6 +233,7 @@ end
 
 
 function movieKeyCallback(figHandle, keydata)
+
 ud = get(figHandle, 'UserData');
 
 
@@ -291,6 +294,12 @@ switch lower(keydata.Key)
         delete(oldHands(1:end-1));
         set(ud.pixMarkerHandles, 'MarkerFaceColor', ud.pixColors(1,:));
         set(ud.traceHandles{end}, 'Color', ud.pixColors(1,:));
+    case 'hyphen' % scale cax down
+        ud.cax = ud.cax*0.75;
+        caxis(ud.ImageAxisHandle, ud.cax);
+    case 'equal' % scale cax up
+        ud.cax = ud.cax*1.25;
+        caxis(ud.ImageAxisHandle, ud.cax);
         
 end
 set(figHandle, 'UserData', ud);
