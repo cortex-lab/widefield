@@ -1,23 +1,29 @@
 
 
-function movieWithTracesSVD(U, V, t, tracesT, tracesV, movieSaveFilePath)
-% function movieWithTracesSVD(U, V, t, tracesT, tracesV, movieSaveFilePath)
+function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
+% function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
+% - U is yPix x xPix x nSV
+% - V is nSV x nTimePoints
+% - t is 1 x nTimePoints, the labels of V
+% - traces is a struct array with three fields:
+%   - t is 1 x nTimePoints
+%   - v is 1 x nTimePoints
+%   - name is a string
 %
 % Usage:
 % - 'p' plays/pauses
 % - 'r' starts/stops recording, if playing
 % - up/down arrow keys increase/decrease playback rate
 % - alt+arrowkeys changes view
+% - click to change the location of the plotted point. 
+%   - right click to add a new point
+%   - 'c' to clear the plotted points, leaving only the last one
 %
 % NOTE! The caxis is set like it's a DF/F movie. If you want a DF/F movie, 
 % divide U by the mean image before passing it in, like this:
 % >> U = bsxfun(@rdivide, U, meanImage);
 
 % TODO
-% - Test ctrl+click
-% - Plot the positions of chosen pixels
-% - Set colors of pixel markers and traces
-% - Add clear functionality
 %
 % - Add trace labels
 
@@ -25,12 +31,10 @@ function movieWithTracesSVD(U, V, t, tracesT, tracesV, movieSaveFilePath)
 allData.U = U;
 allData.V = V;
 allData.t = t;
-if ~isempty(tracesT)
-    allData.tracesT = tracesT;
-    allData.tracesV = tracesV;
+if ~isempty(traces)
+    allData.traces = traces;
 else
-    allData.tracesT = {};
-    allData.tracesV = {};
+    allData.traces = [];
 end
 
 figHandle = figure; 
@@ -109,14 +113,14 @@ if ~ud.figInitialized
     
     % initialize any trace plots here. Use subtightplot and axis off (except
     % the bottom one?)     
-    nSP = length(allData.tracesT)+1;
+    nSP = length(allData.traces)+1;
     currTime = allData.t(ud.currentFrame);    
     for tInd = 1:nSP-1
         ax = subtightplot(nSP,2,(tInd-1)*2+2, 0.01, 0.01, 0.01);
         ud.traceAxes(tInd) = ax;
-        thisT = allData.tracesT{tInd};
+        thisT = allData.traces(tInd).t;
         inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
-        q = plot(thisT(inclT), allData.tracesV{tInd}(inclT));
+        q = plot(thisT(inclT), allData.traces(tInd).v(inclT));
         if isempty(q)
             q = plot(0,0);
         end
@@ -128,6 +132,9 @@ if ~ud.figInitialized
         q = plot([currTime currTime], yl, 'k--');
         ud.traceZeroBars(tInd) = q;
         makepretty;
+        
+        annotation('textbox', get(ax, 'Position'), 'String', allData.traces(tInd).name, ...
+            'EdgeColor', 'none', 'FontSize', 14);
     end
     
     % one more for the selected pixel
@@ -164,15 +171,15 @@ if ud.playing
     currTime = allData.t(ud.currentFrame);
     set(get(ud.ImageAxisHandle, 'Title'), 'String', sprintf('time %.2f, rate %d', currTime, ud.rate));              
     
-    nSP = length(allData.tracesT)+1;
+    nSP = length(allData.traces)+1;
     for n = 1:nSP
         ax = ud.traceAxes(n);        
         set(ud.traceZeroBars(n), 'XData', [currTime currTime]);
         
         if n<nSP
-            thisT = allData.tracesT{n};
+            thisT = allData.traces(n).t;
             inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
-            set(ud.traceHandles{n}, 'XData', thisT(inclT), 'YData', allData.tracesV{n}(inclT));
+            set(ud.traceHandles{n}, 'XData', thisT(inclT), 'YData', allData.traces(n).v(inclT));
         elseif n==nSP            
             % last plot is the pixels. It'll be a cell array with multiple
             % pixels
