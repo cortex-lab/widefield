@@ -13,6 +13,15 @@ function movieWithTracesSVD(U, V, t, tracesT, tracesV, movieSaveFilePath)
 % divide U by the mean image before passing it in, like this:
 % >> U = bsxfun(@rdivide, U, meanImage);
 
+% TODO
+% - Test ctrl+click
+% - Plot the positions of chosen pixels
+% - Set colors of pixel markers and traces
+% - Add clear functionality
+%
+% - Add trace labels
+
+
 allData.U = U;
 allData.V = V;
 allData.t = t;
@@ -30,8 +39,20 @@ ud.currentFrame = 1;
 ud.rate = 1;
 ud.playing = true;
 ud.figInitialized = false;
-ud.pixel = [1 1];
-ud.pixelTrace = squeeze(allData.U(ud.pixel(1), ud.pixel(2), :))' * allData.V;
+ud.pixel = {[1 1]};
+ud.pixelTrace = (squeeze(allData.U(ud.pixel{1}(1), ud.pixel{1}(2), :))' * allData.V)';
+
+ud.nColors = 5;
+% pixColors = hsv(nColors);
+ud.pixColors =  ... % default color order
+    [0    0.4470    0.7410
+    0.8500    0.3250    0.0980
+    0.9290    0.6940    0.1250
+    0.4940    0.1840    0.5560
+    0.4660    0.6740    0.1880
+    0.3010    0.7450    0.9330
+    0.6350    0.0780    0.1840];
+
 
 if exist('movieSaveFilePath')
     WriterObj = VideoWriter(movieSaveFilePath);
@@ -65,20 +86,26 @@ function showNextFrame(h,e,figHandle, allData)
 ud = get(figHandle, 'UserData');
 windowSize = 10;
 
+nColors = ud.nColors; pixColors = ud.pixColors;
+
+cax = [-0.4 0.4];
+
 if ~ud.figInitialized
     ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
 %     ax = axes();
     ud.ImageAxisHandle = ax;
     myIm = imagesc(svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));     
     ud.ImageHandle = myIm;
-    caxis([-0.15 0.15]);
+    caxis(cax);
     colormap(colormap_blueblackred);
     axis equal tight;
-    colorbar
-    axis off     
+    colorbar    
 %     set(myIm, 'HitTest', 'off');
     set(myIm, 'ButtonDownFcn', @(f,k)movieCallbackClick(f, k, allData, figHandle));
-
+    hold on;
+    q = plot(ax, ud.pixel{1}(2), ud.pixel{1}(1), 'ko', 'MarkerFaceColor', pixColors(1,:));
+    ud.pixMarkerHandles(1) = q;        
+    axis off 
     
     % initialize any trace plots here. Use subtightplot and axis off (except
     % the bottom one?)     
@@ -93,7 +120,7 @@ if ~ud.figInitialized
         if isempty(q)
             q = plot(0,0);
         end
-        ud.traceHandles(tInd) = q;
+        ud.traceHandles{tInd} = q;
         axis off
         xlim([currTime-windowSize/2 currTime+windowSize/2]);
         yl = ylim();
@@ -108,8 +135,8 @@ if ~ud.figInitialized
     ud.traceAxes(nSP) = ax;
     thisT = allData.t;
     inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
-    q = plot(thisT(inclT), ud.pixelTrace(inclT)); 
-    ud.traceHandles(nSP) = q;
+    q = plot(thisT(inclT), ud.pixelTrace(inclT), 'Color', pixColors(1,:)); 
+    ud.traceHandles{nSP} = q;
     hold on;
     yl = ylim();
     axis off
@@ -123,8 +150,17 @@ if ~ud.figInitialized
 end
 
 if ud.playing
-    set(ud.ImageHandle, 'CData', svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));    
-        
+    set(ud.ImageHandle, 'CData', svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));                
+    
+    if length(ud.pixel)>length(ud.pixMarkerHandles)
+        ud = get(figHandle, 'UserData');
+        for newPix = length(ud.pixMarkerHandles)+1:length(ud.pixel)
+            q = plot(ud.ImageAxisHandle, ud.pixel{newPix}(2), ud.pixel{newPix}(1), 'ko', 'MarkerFaceColor', pixColors(mod(newPix-1,nColors)+1,:));
+            ud.pixMarkerHandles(newPix) = q;
+        end
+        set(figHandle, 'UserData', ud);
+    end
+    
     currTime = allData.t(ud.currentFrame);
     set(get(ud.ImageAxisHandle, 'Title'), 'String', sprintf('time %.2f, rate %d', currTime, ud.rate));              
     
@@ -136,16 +172,35 @@ if ud.playing
         if n<nSP
             thisT = allData.tracesT{n};
             inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
-            set(ud.traceHandles(n), 'XData', thisT(inclT), 'YData', allData.tracesV{n}(inclT));
-        elseif n==nSP
+            set(ud.traceHandles{n}, 'XData', thisT(inclT), 'YData', allData.tracesV{n}(inclT));
+        elseif n==nSP            
+            % last plot is the pixels. It'll be a cell array with multiple
+            % pixels
             thisT = allData.t;
-            inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
-            set(ud.traceHandles(n), 'XData', thisT(inclT), 'YData', ud.pixelTrace(inclT));
-            mx =  max(ud.pixelTrace(inclT));
-            mn = min(ud.pixelTrace(inclT));
-            if mx>mn
-                ylim(ud.traceAxes(n), [mn mx]);
+            inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');                                    
+            
+            if length(ud.pixel)>length(ud.traceHandles{n}) 
+                ud = get(figHandle, 'UserData');
+                % there are new pixels, need to initialize
+                for newPix = length(ud.traceHandles{n})+1:length(ud.pixel)
+                    q = plot(ax, thisT(inclT), ud.pixelTrace(inclT,newPix), 'Color', pixColors(mod(newPix-1,nColors)+1,:), 'LineWidth', 2.0);
+                    ud.traceHandles{n}(newPix) = q;
+                end
+                set(figHandle, 'UserData', ud);
             end
+            
+            
+            for tr = 1:length(ud.traceHandles{n})
+                thisHand = ud.traceHandles{n}(tr);
+                set(thisHand, 'XData', thisT(inclT), 'YData', ud.pixelTrace(inclT,tr));
+            end
+            ylim(ax, cax);
+%             mx =  max(ud.pixelTrace(inclT));
+%             mn = min(ud.pixelTrace(inclT));
+%             if mx>mn
+%                 ylim(ud.traceAxes(n), [mn mx]);
+%             end
+                
         end
         xlim(ax, [currTime-windowSize/2 currTime+windowSize/2]);
         
@@ -199,6 +254,7 @@ if isequal(keydata.Modifier, {'alt'})
     return;
 end
 
+ud = get(figHandle, 'UserData');
 switch lower(keydata.Key)
     case 'rightarrow'
         
@@ -208,18 +264,28 @@ switch lower(keydata.Key)
         ud.rate = ud.rate*2;
     case 'downarrow'
         ud.rate = max(1, ud.rate/2);
-    case 'p'
+    case 'p' % play/pause
         ud.playing = ~ud.playing;
-    case 'r'
+    case 'r' %start/stop recording
         ud.recording = ~ud.recording;
         if ud.recording
             set(figHandle, 'Name', 'RECORDING');
         else
             set(figHandle, 'Name', 'Not recording.');
         end
+    case 'c' % clear pixels
+        ud.pixel = {ud.pixel{end}};
+        ud.pixelTrace = ud.pixelTrace(:,end);
+        oldHands = ud.traceHandles{end};
+        ud.traceHandles{end} = oldHands(end);
+        delete(oldHands(1:end-1));
+        oldHands = ud.pixMarkerHandles;
+        ud.pixMarkerHandles = oldHands(end);
+        delete(oldHands(1:end-1));
+        set(ud.pixMarkerHandles, 'MarkerFaceColor', ud.pixColors(1,:));
+        set(ud.traceHandles{end}, 'Color', ud.pixColors(1,:));
+        
 end
-
-
 set(figHandle, 'UserData', ud);
 
 function movieCallbackClick(f, keydata, allData, figHandle)
@@ -229,11 +295,21 @@ clickY = keydata.IntersectionPoint(2);
 
 pixel = round([clickY clickX]);
 
-fprintf(1, 'new pixel %d, %d\n', pixel(1), pixel(2));
+% fprintf(1, 'new pixel %d, %d\n', pixel(1), pixel(2));
+
+thisPixelTrace = squeeze(allData.U(pixel(1), pixel(2), :))' * allData.V;
 
 ud = get(figHandle, 'UserData');
-ud.pixel = pixel;
-ud.pixelTrace = squeeze(allData.U(pixel(1), pixel(2), :))' * allData.V;
+if keydata.Button == 3
+    % new pixel, leave the old one
+    ud.pixel{end+1} = pixel;
+    ud.pixelTrace(:,end+1) = thisPixelTrace;
+elseif keydata.Button == 1
+    ud.pixel{end} = pixel;
+    ud.pixelTrace(:,end) = thisPixelTrace;
+    % update the plotted spot
+    set(ud.pixMarkerHandles(end), 'XData', pixel(2), 'YData', pixel(1));
+end
 set(figHandle, 'UserData', ud);
 
 
