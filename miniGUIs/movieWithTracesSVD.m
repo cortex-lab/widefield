@@ -18,6 +18,8 @@ function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
 % - click to change the location of the plotted point. 
 %   - right click to add a new point
 %   - 'c' to clear the plotted points, leaving only the last one
+% - '-' and '=' change the caxis, scaling up and down. It will stay
+% centered around zero though. 
 %
 % NOTE! The caxis is set like it's a DF/F movie. If you want a DF/F movie, 
 % divide U by the mean image before passing it in, like this:
@@ -332,4 +334,10 @@ set(figHandle, 'UserData', ud);
 function closeFigure(s,c,myTimer)
 stop(myTimer)
 delete(myTimer);
+
+ud = get(s, 'UserData');
+if ~isempty(ud.WriterObj)
+    close(ud.WriterObj);
+end
+
 delete(s);
