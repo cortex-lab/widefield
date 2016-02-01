@@ -1,6 +1,6 @@
 
 
-function saveSVD(ops, U, V, Sv, totalVar, dataSummary)
+function saveSVD(ops, U, V, dataSummary)
 
 fprintf(1, 'saving SVD results to server... \n');
 
@@ -30,22 +30,33 @@ if ~exist(Upath)
     mkdir(Upath);
 end
 
-fprintf(1, '  saveing U... \n');
-save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U', 'Sv', 'ops', 'totalVar');
-save(fullfile(Upath, 'dataSummary'), 'dataSummary');
+fprintf(1, '  saving U... \n');
+if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
+    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U.npy'), []);
+else
+    save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
+end
+save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
 
 allDS = dataSummary;
 allV = V;    
 fileInds = cumsum([0 nFrPerExp]);
 
 for n = 1:numExps
-    fprintf(1, '  saveing V for exp %d... \n', n);
+    fprintf(1, '  saving V for exp %d... \n', n);
     filePath = dat.expPath(ops.mouseName, ops.thisDate, n, 'widefield', 'master');
     mkdir(filePath);
-    svdFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master') '_V'];
+    svdFilePath = dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master');
+    
     V = allV(:,fileInds(n)+1:fileInds(n+1));
     t = allT{n};
-    save(svdFilePath, '-v7.3', 'V', 't'); 
+    
+    if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
+        writeUVtoNPY([], V, [], [svdFilePath '_V.npy']);
+        writeNPY(t, [svdFilePath '_t.npy']);
+    else
+        save([svdFilePath '_V'], '-v7.3', 'V', 't'); 
+    end
     
     dsFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master') '_summary'];
     dataSummary.frameNumbers = allDS.frameNumbers(fileInds(n)+1:fileInds(n+1));
@@ -55,5 +66,8 @@ for n = 1:numExps
     save(dsFilePath, 'dataSummary');
     
 end
+
+% Register results files with database here??
+
 
 fprintf(1,'done \n');
