@@ -44,6 +44,7 @@ if ~exist(ops.datPath)
     dataSummary.meanImage = meanImage;
     dataSummary.imageSize = imageSize;
     dataSummary.regDs = regDs;    
+    dataSummary.registrationTargetFrame = targetFrame;
     save(fullfile(ops.localSavePath, 'dataSummary.mat'), 'dataSummary');
     toc
 else
