@@ -24,6 +24,7 @@ end
 
 imgInds = 1:ceil(nFr/ops.NimgFirstRegistration):nFr; % want these frames, evenly distributed from the recording
 
+firstFrame = removeStamps(firstFrame, ops.hasASCIIstamp, ops.hasBinaryStamp);
 if ops.binning>1
     firstFrame = binImage(firstFrame, ops.binning);
 end
@@ -44,10 +45,13 @@ for ind = 2:length(imgInds)
         case 'customPCO'
             thisFrame = readOneCustomPCO(theseFiles{fileInd}, frInd);
     end
+    thisFrame = removeStamps(thisFrame, ops.hasASCIIstamp, ops.hasBinaryStamp);
+    if ops.binning>1
+        thisFrame = binImage(thisFrame, ops.binning);
+    end
     firstRegFrames(:,:,ind) = thisFrame;
 end
 
-firstRegFrames = removeStamps(firstRegFrames, ops.hasASCIIstamp, ops.hasBinaryStamp);
      
 if ops.verbose
     fprintf(ops.statusDestination, 'identifying registration target\n');
@@ -55,10 +59,10 @@ end
 [AlignNanThresh, ErrorInitialAlign, dsprealign, targetImg] = align_iterative(firstRegFrames, ops);
 
 if ops.verbose
-    f = figure; set(f, 'Name', 'initial registration results');
-    subplot(1,2,1); plot(dsprealign);
-    title('dsprealign');
-    subplot(1,2,2); plot(ErrorInitialAlign);
-    title('ErrorInitialAlign');
-    drawnow;
+%     f = figure; set(f, 'Name', 'initial registration results');
+%     subplot(1,2,1); plot(dsprealign);
+%     title('dsprealign');
+%     subplot(1,2,2); plot(ErrorInitialAlign);
+%     title('ErrorInitialAlign');
+%     drawnow;
 end

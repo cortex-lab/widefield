@@ -55,19 +55,7 @@ try
                 [~,~,~,imstack] = LoadCustomPCO(thisFile, false, true);
         end
         
-        
         nfr = size(imstack,3);
-        
-        if fileInd==1
-            sz = size(imstack);
-            imageSize = sz(1:2);
-            meanImage = zeros(imageSize);
-        end
-        
-        if ops.verbose
-            fprintf(ops.statusDestination, '  computing image means\n');
-        end
-        imageMeans(frameIndex+1:frameIndex+nfr) = squeeze(mean(mean(imstack,1),2));
         
         if ops.hasBinaryStamp
             if ops.verbose
@@ -93,6 +81,24 @@ try
             end
         end
         
+        imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);
+        
+        if ops.binning>1
+            imstack = binImage(imstack, ops.binning);
+        end                
+        
+        if fileInd==1
+            sz = size(imstack);
+            imageSize = sz(1:2);
+            meanImage = zeros(imageSize);
+        end
+        
+        if ops.verbose
+            fprintf(ops.statusDestination, '  computing image means\n');
+        end
+        imageMeans(frameIndex+1:frameIndex+nfr) = squeeze(mean(mean(imstack,1),2));
+        
+                
         if ops.doRegistration && ~isempty(targetFrame)
             if ops.verbose
                 fprintf(ops.statusDestination, '  registering frames\n');
@@ -100,9 +106,7 @@ try
             
             if fileInd==1
                 regDs = zeros(nfr,2);
-            end
-            
-            imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);
+            end                        
             
             [ds, ~]  = registration_offsets(imstack, ops, targetFrame, 0);
             regDs(frameIndex+1:frameIndex+nfr,:)  = ds;
