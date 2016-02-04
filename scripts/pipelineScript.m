@@ -19,7 +19,7 @@
 if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
 end
-save(fullfile(ops.localSavePath, 'ops.mat'), ops);
+save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
 
 if ~exist(ops.datPath)
     

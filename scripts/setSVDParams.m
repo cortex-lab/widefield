@@ -3,7 +3,7 @@
 function ops = setSVDParams()
 
 ops.mouseName = 'Dale'; 
-ops.thisDate = '2016-01-26';
+ops.thisDate = '2016-02-01';
 
 ops.rigName = 'bigrig';
 
@@ -16,7 +16,7 @@ ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']
 ops.localSavePath = fullfile('J:\', ops.mouseName, ops.thisDate); % where to put results temporarily on a local disk. 
 
 ops.verbose = true;
-ops.statusDestination = 1; % set this to 1 for status messages to appear on the screen. 
+ops.statusDestination = 'test.txt'; % set this to 1 for status messages to appear on the screen. 
                            % set it to a filepath to write them to a file
 
 if ops.statusDestination~=1 
