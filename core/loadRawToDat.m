@@ -16,11 +16,16 @@ theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutpu
 
 
 if ~isfield(ops, 'Nframes') || isempty(ops.Nframes)
+    if ops.verbose
+        statusDest = ops.statusDestination;
+    else
+        statusDest = [];
+    end
     switch ops.rawDataType
         case 'tif'
-            nFrames = getNFramesFromTifFiles(theseFiles);
+            nFrames = getNFramesFromTifFiles(theseFiles, statusDest);
         case 'customPCO'
-            nFrames = getNFramesFromCustomPCOFiles(theseFiles);
+            nFrames = getNFramesFromCustomPCOFiles(theseFiles, statusDest);
     end
 
 else

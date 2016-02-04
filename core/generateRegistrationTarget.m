@@ -13,12 +13,17 @@ switch ops.rawDataType
 end
 theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
 
-switch ops.rawDataType
-    case 'tif'
-        [nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles);
+if ops.verbose
+    statusDest = ops.statusDestination;
+else
+    statusDest = [];
+end
+switch ops.rawDataType    
+    case 'tif'        
+        [nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles, statusDest);
         firstFrame = imread(theseFiles{1}, 1);
     case 'customPCO'
-        [nFr, nFrPerFile] = getNFramesFromCustomPCOFiles(theseFiles);
+        [nFr, nFrPerFile] = getNFramesFromCustomPCOFiles(theseFiles, statusDest);
         firstFrame = readOneCustomPCO(theseFiles{1}, 1);
 end
 
