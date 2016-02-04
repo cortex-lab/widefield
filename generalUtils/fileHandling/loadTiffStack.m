@@ -1,6 +1,6 @@
 
 
-function stack = loadTiffStack(tiffFilename, mode)
+function stack = loadTiffStack(tiffFilename, mode, statusDestination)
 
 % mode = 'tiffobj'; % options are 'imread', 'tiffobj'
 % tiffobj is faster for USB-attached hard drive. 
@@ -19,8 +19,8 @@ end
 stack = zeros(InfoImage(1).Height, InfoImage(1).Width, nImagesThisFile, 'uint16');
 
 for i=1:nImagesThisFile
-    if mod(i,100)==0
-        fprintf(1, '  image %d\n', i);
+    if ~isempty(statusDestination) && mod(i,100)==0
+        fprintf(statusDestination, '  image %d\n', i);
     end
     
     switch mode

@@ -16,7 +16,15 @@ ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']
 ops.localSavePath = fullfile('J:\', ops.mouseName, ops.thisDate); % where to put results temporarily on a local disk. 
 
 ops.verbose = true;
+ops.statusDestination = 1; % set this to 1 for status messages to appear on the screen. 
+                           % set it to a filepath to write them to a file
 
+if ops.statusDestination~=1 
+    % open the file
+    fid = fopen(ops.statusDestination, 'w');
+    ops.statusDestination = fid;
+end
+                           
 ops.rawDataType = 'tif'; % 'tif' or 'customPCO'
 ops.hasASCIIstamp = true; % if your movie has legible timestamps in the corner
 ops.hasBinaryStamp = true; % if the binary time stamps were turned on
@@ -24,6 +32,8 @@ ops.hasBinaryStamp = true; % if the binary time stamps were turned on
 % ops.rawDataType = 'customPCO'; % 'tif' or 'customPCO'
 % ops.hasASCIIstamp = false; % if your movie has legible timestamps in the corner
 % ops.hasBinaryStamp = false; % if the binary time stamps were turned on
+
+ops.binning = 1; % set to 2 for 2x2 binning, 3 for 3x3, etc. Setting to 1 skips this.
 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
 ops.nSVD = 2000; % number of SVD components to keep

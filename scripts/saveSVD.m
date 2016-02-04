@@ -2,9 +2,11 @@
 
 function saveSVD(ops, U, V, dataSummary)
 
-fprintf(1, 'saving SVD results to server... \n');
+if ops.verbose
+    fprintf(ops.statusDestination, 'saving SVD results to server... \n');
 
-fprintf(1, '  loading timeline files to determine alignments... \n');
+    fprintf(ops.statusDestination, '  loading timeline files to determine alignments... \n');
+end
 nExp = 1;
 nFrPerExp = [];
 timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
@@ -18,10 +20,12 @@ while exist(timelinePath)
 end
 
 if sum(nFrPerExp)~=size(V,2)
-    fprintf(1, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will not save data to server.\n');
+    fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will not save data to server.\n');
     alignmentWorked  = false;
 else
-    fprintf(1, '  alignments correct. \n');
+    if ops.verbose
+        fprintf(ops.statusDestination, '  alignments correct. \n');
+    end
     alignmentWorked = true;
 end
 
@@ -34,7 +38,9 @@ if ~exist(Upath)
     mkdir(Upath);
 end
 
-fprintf(1, '  saving U... \n');
+if ops.verbose
+    fprintf(ops.statusDestination, '  saving U... \n');
+end
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
     writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U.npy'), []);
 else
@@ -49,7 +55,9 @@ if alignmentWorked
     fileInds = cumsum([0 nFrPerExp]);
 
     for n = 1:numExps
-        fprintf(1, '  saving V for exp %d... \n', n);
+        if ops.verbose
+            fprintf(ops.statusDestination, '  saving V for exp %d... \n', n);
+        end
         filePath = dat.expPath(ops.mouseName, ops.thisDate, n, 'widefield', 'master');
         mkdir(filePath);
         svdFilePath = dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master');
@@ -73,7 +81,9 @@ if alignmentWorked
 
     end
 else % alignment didn't work, just save it like U, in the root directory
-    fprintf(1, '  saving V... \n');
+    if ops.verbose
+        fprintf(ops.statusDestination, '  saving V... \n');
+    end
     if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
         writeUVtoNPY([], V, [], fullfile(Upath, 'SVD_Results_V.npy'));
     else
@@ -83,5 +93,6 @@ end
     
 % Register results files with database here??
 
-
-fprintf(1,'done \n');
+if ops.verbose
+    fprintf(ops.statusDestination,'done \n');
+end

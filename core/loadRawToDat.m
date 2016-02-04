@@ -38,12 +38,19 @@ try
         
         thisFile = theseFiles{fileInd};
         
-        fprintf(1, 'loading file: %s (%d of %d)\n', thisFile, fileInd, length(theseFiles));
+        if ops.verbose
+            fprintf(ops.statusDestination, 'loading file: %s (%d of %d)\n', thisFile, fileInd, length(theseFiles));
+        end
         
         clear imstack
         switch ops.rawDataType
             case 'tif'
-                imstack = loadTiffStack(thisFile, 'tiffobj');
+                if ops.verbose
+                    statusDest = ops.statusDestination;
+                else
+                    statusDest = [];
+                end
+                imstack = loadTiffStack(thisFile, 'tiffobj', statusDest);
             case 'customPCO'
                 [~,~,~,imstack] = LoadCustomPCO(thisFile, false, true);
         end
@@ -57,11 +64,15 @@ try
             meanImage = zeros(imageSize);
         end
         
-        fprintf(1, '  computing image means\n');
+        if ops.verbose
+            fprintf(ops.statusDestination, '  computing image means\n');
+        end
         imageMeans(frameIndex+1:frameIndex+nfr) = squeeze(mean(mean(imstack,1),2));
         
         if ops.hasBinaryStamp
-            fprintf(1, '  computing timestamps\n');
+            if ops.verbose
+                fprintf(ops.statusDestination, '  computing timestamps\n');
+            end
             
             switch ops.rawDataType
                 case 'tif'
@@ -83,7 +94,9 @@ try
         end
         
         if ops.doRegistration && ~isempty(targetFrame)
-            fprintf(1, '  registering frames\n');
+            if ops.verbose
+                fprintf(ops.statusDestination, '  registering frames\n');
+            end
             
             if fileInd==1
                 regDs = zeros(nfr,2);
@@ -107,10 +120,14 @@ try
             end
         end
         
-        fprintf(1, '  computing mean image\n');
+        if ops.verbose
+            fprintf(ops.statusDestination, '  computing mean image\n');
+        end
         meanImage = meanImage+double(mean(regFrames,3))*(nfr/nFrames);
         
-        fprintf(1, '  saving to dat\n');
+        if ops.verbose
+            fprintf(ops.statusDestination, '  saving to dat\n');
+        end
         fwrite(fid, regFrames, 'uint16');
         
         frameIndex = frameIndex+nfr;
@@ -125,4 +142,6 @@ fclose(fid);
 
 timeStamps = timeStamps*24*3600; % convert to seconds from days
 
-fprintf(1, '  done\n');
+if ops.verbose
+    fprintf(ops.statusDestination, '  done\n');
+end

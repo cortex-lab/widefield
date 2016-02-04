@@ -24,12 +24,15 @@ end
 
 imgInds = 1:ceil(nFr/ops.NimgFirstRegistration):nFr; % want these frames, evenly distributed from the recording
 
+if ops.binning>1
+    firstFrame = binImage(firstFrame, ops.binning);
+end
 firstRegFrames = zeros(size(firstFrame,1), size(firstFrame,2), numel(imgInds));
 firstRegFrames(:,:,1) = firstFrame;
 
 cumFrameCount = [0; cumsum(nFrPerFile)];
 if ops.verbose
-    fprintf(1, 'loading test frames for identifying registration target\n');
+    fprintf(ops.statusDestination, 'loading test frames for identifying registration target\n');
 end
 
 for ind = 2:length(imgInds)
@@ -47,7 +50,7 @@ end
 firstRegFrames = removeStamps(firstRegFrames, ops.hasASCIIstamp, ops.hasBinaryStamp);
      
 if ops.verbose
-    fprintf(1, 'identifying registration target\n');
+    fprintf(ops.statusDestination, 'identifying registration target\n');
 end
 [AlignNanThresh, ErrorInitialAlign, dsprealign, targetImg] = align_iterative(firstRegFrames, ops);
 

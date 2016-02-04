@@ -65,14 +65,14 @@ ix = 0;
 mov = zeros(Ly, Lx, ops.NavgFramesSVD, 'single');
 
 if ops.verbose
-    fprintf(1, 'loading data\n');
+    fprintf(ops.statusDestination, 'loading data\n');
 end
 
 try 
     fid = fopen(ops.RegFile, 'r');
     while 1
         if ops.verbose
-            fprintf(1, '   frame %d out of %d\n', ix*nt0, ops.Nframes);
+            fprintf(ops.statusDestination, '   frame %d out of %d\n', ix*nt0, ops.Nframes);
         end
         
         data = fread(fid,  Ly*Lx*nimgbatch, '*uint16');
@@ -116,7 +116,7 @@ mov = mov(ops.yrange, ops.xrange, :);
 
 
 if ops.verbose
-    fprintf(1, 'computing SVD\n');
+    fprintf(ops.statusDestination, 'computing SVD\n');
 end
 
 ops.nSVD = min(ops.nSVD, size(mov,3));
@@ -160,13 +160,13 @@ try
     Fs = zeros(ops.nSVD, sum(ops.Nframes), 'single');
     
     if ops.verbose
-        fprintf(1, 'applying SVD to data\n');
+        fprintf(ops.statusDestination, 'applying SVD to data\n');
     end
     
     while 1
         
         if ops.verbose
-            fprintf(1, '   frame %d out of %d\n', ix, ops.Nframes);
+            fprintf(ops.statusDestination, '   frame %d out of %d\n', ix, ops.Nframes);
         end
         
         data = fread(fid,  Ly*Lx*nimgbatch, '*uint16');
@@ -203,5 +203,5 @@ if isfield(ops, 'ResultsSaveFilename') && ~isempty(ops.ResultsSaveFilename)
 end
 
 if ops.verbose
-    fprintf(1, 'done.\n');
+    fprintf(ops.statusDestination, 'done.\n');
 end

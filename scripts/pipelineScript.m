@@ -27,7 +27,9 @@ if ~exist(ops.datPath)
         % if you want to do registration, we need to first determine the
         % target image. 
         tic
-        fprintf(1, 'determining target image\n');
+        if ops.verbose
+            fprintf(ops.statusDestination, 'determining target image\n');
+        end
         [targetFrame, nFr] = generateRegistrationTarget(ops.fileBase, ops);
         ops.Nframes = nFr;
         toc
@@ -81,15 +83,19 @@ tic
 [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
 toc
 
-save(fullfile(ops.localSavePath, 'SVD_results'), '-v7.3', 'U', 'Sv', 'V', 'totalVar');
+% save results locally first in case something goes wrong with getting them
+% to the server
+save(fullfile(ops.localSavePath, 'SVD_results'), '-v7.3', 'U', 'Sv', 'V', 'totalVar', 'dataSummary', 'ops');
+saveSVD(ops, U, V, Sv, totalVar, dataSummary)
+
+fprintf(ops.statusDestination, 'all done, success!\n');
+
+if ops.statusDestination~=1 
+    % close the file
+    fclose(ops.statusDestination);
+end
+
 
 %%
-svdViewer(U, Sv, V, ops.Fs, totalVar)
+% svdViewer(U, Sv, V, ops.Fs, totalVar)
 
-
-%% after reviewing the SVD, you want to do these:
-
-% nKeep = 1200; % or however much you want
-% U = U(:,:,1:nKeep); V = V(1:nKeep,:); Sv = Sv(1:nKeep);
-% 
-% saveSVD(ops, U, V, Sv, totalVar, dataSummary)
