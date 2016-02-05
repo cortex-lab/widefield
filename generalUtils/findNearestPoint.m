@@ -8,6 +8,8 @@ function [nearest, inds] = findNearestPoint(ofThese, inThese)
 %
 % inThese and ofThese must both already be sorted. 
 
+ofThese = ofThese(:)';% to row
+inThese = inThese(:)'; 
 
 [~,ii] = sort([inThese ofThese]);
 [~,ii2] = sort(ii); 
