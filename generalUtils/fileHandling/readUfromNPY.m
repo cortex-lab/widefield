@@ -1,6 +1,6 @@
 
 
-function readUfromNPY(uFilePath, varargin)
+function U = readUfromNPY(uFilePath, varargin)
 % function readVfromNPY(uFilePath[, nSVtoRead])
 % Reads a U matrix from an NPY file, optionally reads just a certain number
 % of components
@@ -10,12 +10,12 @@ if isempty(varargin)
     U = readNPY(vFilePath);
 else
     nSVtoRead = varargin{1};
-    [arrayShape, dataType, fortranOrder, littleEndian, totalHeaderLength, npyVersion] = readNPYheader(vFilePath);
+    [arrayShape, dataType, fortranOrder, littleEndian, totalHeaderLength, npyVersion] = readNPYheader(uFilePath);
     
     yPix = arrayShape(1);
-    xPix = arrayShape(1);
+    xPix = arrayShape(2);
     
-    fid = fopen(vFilePath, 'r');
+    fid = fopen(uFilePath, 'r');
     try
         header = fread(fid, totalHeaderLength, '*char');
         U = fread(fid, yPix*xPix*nSVtoRead, ['*' dataType]);

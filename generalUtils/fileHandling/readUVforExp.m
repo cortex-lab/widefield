@@ -8,10 +8,10 @@ function [U, V, t] = readUVforExp(mouseName, thisDate, expNum, varargin)
 filePath = dat.expPath(mouseName, thisDate, 1, 'widefield', 'master');
 Upath = fileparts(filePath);
 
-U = readUfromNPY(fullfile(Upath, 'SVD_Results_U.npy'), varargin);
+U = readUfromNPY(fullfile(Upath, 'SVD_Results_U.npy'), varargin{:});
 
 vFilePath = fullfile([dat.expFilePath(mouseName, thisDate, expNum, 'calcium-widefield-svd', 'master') '_V.npy']);
 tFilePath = fullfile([dat.expFilePath(mouseName, thisDate, expNum, 'calcium-widefield-svd', 'master') '_t.npy']);
 
-V = readVfromNPY(vFilePath, varargin);
+V = readVfromNPY(vFilePath, varargin{:});
 t = readNPY(tFilePath);
