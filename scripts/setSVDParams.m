@@ -19,6 +19,8 @@ ops.verbose = true;
 ops.statusDestination = 'test.txt'; % set this to 1 for status messages to appear on the screen. 
                            % set it to a filepath to write them to a file
 
+ops.saveAsNPY = true; % set as false if you want the output on zserver to be mat files instead                           
+                           
 if ops.statusDestination~=1 
     % open the file
     fid = fopen(ops.statusDestination, 'w');

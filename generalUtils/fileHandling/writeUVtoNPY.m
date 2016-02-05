@@ -10,8 +10,8 @@ function writeUVtoNPY(U, V, uFilePath, vFilePath)
 % loading just a limited number of components later. 
 
 if ~isempty(uFilePath)
-    writeNPY(U, [uFilePath .npy]);
+    writeNPY(U, [uFilePath '.npy']);
 end
 if ~isempty(vFilePath)
-    writeNPY(V', [vFilePath .npy]);
+    writeNPY(V', [vFilePath '.npy']);
 end

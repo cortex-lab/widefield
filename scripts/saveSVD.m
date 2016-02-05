@@ -42,7 +42,7 @@ if ops.verbose
     fprintf(ops.statusDestination, '  saving U... \n');
 end
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U.npy'), []);
+    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U'), []);
 else
     save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
 end
@@ -66,7 +66,7 @@ if alignmentWorked
         t = allT{n};
 
         if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-            writeUVtoNPY([], V, [], [svdFilePath '_V.npy']);
+            writeUVtoNPY([], V, [], [svdFilePath '_V']);
             writeNPY(t, [svdFilePath '_t.npy']);
         else
             save([svdFilePath '_V'], '-v7.3', 'V', 't'); 
@@ -87,7 +87,7 @@ else % alignment didn't work, just save it like U, in the root directory
     if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
         writeUVtoNPY([], V, [], fullfile(Upath, 'SVD_Results_V.npy'));
     else
-        save(fullfile(Upath, 'SVD_Results_V'), '-v7.3', 'U');
+        save(fullfile(Upath, 'SVD_Results_V'), '-v7.3', 'V');
     end
 end
     
