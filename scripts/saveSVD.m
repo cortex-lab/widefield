@@ -20,7 +20,7 @@ while exist(timelinePath)
 end
 
 if sum(nFrPerExp)~=size(V,2)
-    fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will not save data to server.\n');
+    fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
     alignmentWorked  = false;
 else
     if ops.verbose

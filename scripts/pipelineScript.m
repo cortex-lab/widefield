@@ -82,11 +82,13 @@ ops.ResultsSaveFilename = [];
 tic
 [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
 toc
+dataSummary.Sv = Sv;
+dataSummary.totalVar = totalVar;
 
 % save results locally first in case something goes wrong with getting them
 % to the server
 save(fullfile(ops.localSavePath, 'SVD_results'), '-v7.3', 'U', 'Sv', 'V', 'totalVar', 'dataSummary', 'ops');
-saveSVD(ops, U, V, Sv, totalVar, dataSummary)
+saveSVD(ops, U, V, dataSummary)
 
 fprintf(ops.statusDestination, 'all done, success!\n');
 
