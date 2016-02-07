@@ -1,6 +1,6 @@
 
 
-function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = loadRawToDat(fileBase, datPath, ops, targetFrame)
+function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs, dataType] = loadRawToDat(fileBase, datPath, ops, targetFrame)
 % converts a set of tif files in a directory (specified by fileBase) to a
 % flat binary (dat) file in datPath. While doing so,
 
@@ -137,7 +137,8 @@ try
         if ops.verbose
             fprintf(ops.statusDestination, '  saving to dat\n');
         end
-        fwrite(fid, regFrames, 'uint16');
+                
+        fwrite(fid, regFrames);
         
         frameIndex = frameIndex+nfr;
         

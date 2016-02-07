@@ -51,6 +51,28 @@ if ~isfield(ops, 'hasBinaryStamp')
     ops.hasBinaryStamp = false;
 end
 
+switch ops.rawDataType
+    case 'tif'
+        theseFilesDir = dir(fullfile(fileBase, '*.tif'));
+    case 'customPCO'
+        theseFilesDir = dir(fullfile(fileBase, '*.mat'));
+        [~,ii] = sort([theseFilesDir.datenum]);
+        theseFilesDir = theseFilesDir(ii);
+    case 'StackSet'
+        theseFilesDir = dir(fullfile(fileBase, '*.bin'));
+end
+theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
+
+switch ops.rawDataType    
+    case 'tif'                
+        firstFrame = imread(theseFiles{1}, 1);
+    case 'customPCO'
+        firstFrame = readOneCustomPCO(theseFiles{1}, 1);
+    case 'StackSet'
+        
+        firstFrame = [];% 
+end
+rawDType = class(firstFrame);
 
 ntotframes          = ceil(sum(ops.Nframes));
 ops.NavgFramesSVD   = min(ops.NavgFramesSVD, ntotframes);
@@ -75,7 +97,7 @@ try
             fprintf(ops.statusDestination, '   frame %d out of %d\n', ix*nt0, ops.Nframes);
         end
         
-        data = fread(fid,  Ly*Lx*nimgbatch, '*uint16');
+        data = fread(fid,  Ly*Lx*nimgbatch, ['*' rawDType]);
         if isempty(data)
             break;
         end
@@ -161,7 +183,7 @@ try
             fprintf(ops.statusDestination, '   frame %d out of %d\n', ix, ops.Nframes);
         end
         
-        data = fread(fid,  Ly*Lx*nimgbatch, '*uint16');
+        data = fread(fid,  Ly*Lx*nimgbatch, ['*' rawDType]);
         if isempty(data)
             break;
         end

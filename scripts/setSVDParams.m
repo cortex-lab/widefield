@@ -48,7 +48,7 @@ ops.useGPU = true;
 ops.RegFile = ops.datPath;
 
 % registration parameters
-ops.doRegistration = true;
+ops.doRegistration = false;
 ops.NimgFirstRegistration  = 750; % could use a smaller value if your movie is short? probably this is fine
 ops.NiterPrealign          = 10; % increase this if "ErrorInitialAlign" doesn't go to zero
 ops.SubPixel               = Inf; % leave alone
