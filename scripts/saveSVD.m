@@ -76,7 +76,9 @@ if alignmentWorked
         dataSummary.frameNumbers = allDS.frameNumbers(fileInds(n)+1:fileInds(n+1));
         dataSummary.imageMeans = allDS.imageMeans(fileInds(n)+1:fileInds(n+1));
         dataSummary.timeStamps = allDS.timeStamps(fileInds(n)+1:fileInds(n+1));
-        dataSummary.regDs = allDS.regDs(fileInds(n)+1:fileInds(n+1),:);
+        if ops.doRegistration
+            dataSummary.regDs = allDS.regDs(fileInds(n)+1:fileInds(n+1),:);
+        end
         save(dsFilePath, 'dataSummary');
 
     end
@@ -85,7 +87,7 @@ else % alignment didn't work, just save it like U, in the root directory
         fprintf(ops.statusDestination, '  saving V... \n');
     end
     if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-        writeUVtoNPY([], V, [], fullfile(Upath, 'SVD_Results_V.npy'));
+        writeUVtoNPY([], V, [], fullfile(Upath, 'SVD_Results_V'));
     else
         save(fullfile(Upath, 'SVD_Results_V'), '-v7.3', 'V');
     end

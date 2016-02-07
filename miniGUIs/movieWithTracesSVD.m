@@ -62,7 +62,7 @@ ud.pixColors =  ... % default color order
     0.6350    0.0780    0.1840];
 
 
-if exist('movieSaveFilePath')
+if ~isempty(movieSaveFilePath) && exist('movieSaveFilePath')
     WriterObj = VideoWriter(movieSaveFilePath);
     WriterObj.FrameRate=50;
     open(WriterObj);
