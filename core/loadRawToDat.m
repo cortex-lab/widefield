@@ -138,7 +138,7 @@ try
             fprintf(ops.statusDestination, '  saving to dat\n');
         end
                 
-        fwrite(fid, regFrames);
+        fwrite(fid, regFrames, class(regFrames));
         
         frameIndex = frameIndex+nfr;
         
