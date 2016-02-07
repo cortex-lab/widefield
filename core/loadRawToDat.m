@@ -86,10 +86,10 @@ try
             end
         end
         
-        imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);
+        imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);       
         
         if ops.binning>1
-            imstack = binImage(imstack, ops.binning);
+            imstack = binImage(imstack, ops.binning);            
         end                
         
         if fileInd==1

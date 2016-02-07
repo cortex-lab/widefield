@@ -80,15 +80,7 @@ try
             break;
         end
         data = single(data);
-        data = reshape(data, Ly, Lx, []);
-
-        if ops.hasASCIIstamp
-            % remove the timestamp data
-            data(1:8,1:292,:) = 0;
-        elseif ops.hasBinaryStamp
-            % remove the timstamp data
-            data(1,1:20,:) = 0;
-        end
+        data = reshape(data, Ly, Lx, []);      
     
         irange = 1:nt0*floor(size(data,3)/nt0);
         data = data(:,:, irange);

@@ -34,7 +34,7 @@ ops.hasBinaryStamp = true; % if the binary time stamps were turned on
 
 % ops.rawDataType = 'customPCO'; % 'tif' or 'customPCO'
 % ops.hasASCIIstamp = false; % if your movie has legible timestamps in the corner
-% ops.hasBinaryStamp = false; % if the binary time stamps were turned on
+% ops.hasBinaryStamp = true; % if the binary time stamps were turned on (true for customPCO)
 
 ops.binning = 4; % set to 2 for 2x2 binning, 3 for 3x3, etc. Setting to 1 skips this.
 
