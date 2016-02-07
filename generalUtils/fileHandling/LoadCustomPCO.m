@@ -85,7 +85,12 @@ try
             if doDisplay
                 fprintf('Correcting last frame. ');
             end
-            TimeStamps(end) = NaN;
+            TimeStamps = TimeStamps(1:end-1);
+            
+            if ~GetInfoOnly
+                Stack = Stack(:,:,1:end-1); %14.1.13 - DS
+            end
+            
         end
     end
     
