@@ -69,13 +69,7 @@ end
 ops.Nframes = numel(dataSummary.timeStamps); % number of frames in whole movie
 
 ops.mimg = dataSummary.meanImage;
-if ops.hasASCIIstamp
-    % remove the timestamp data
-    ops.mimg(1:8,1:292) = 0;
-elseif ops.hasBinaryStamp
-    % remove the timstamp data
-    ops.mimg(1,1:20) = 0;
-end
+ops.mimg = removeStamps(ops.mimg, ops.hasASCIIstamp, ops.hasBinaryStamp);
 
 ops.ResultsSaveFilename = [];
 
