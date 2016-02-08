@@ -90,7 +90,45 @@ try
             if ~GetInfoOnly
                 Stack = Stack(:,:,1:end-1); %14.1.13 - DS
             end
+        end
+        % interpolate if there is a missing frame
+        if max(diff(TimeStamps)) > 2*FrameInterval
+            new_tt = TimeStamps;
             
+            th = 1.5 * median(diff(new_tt)); %DS on 8/4/14...assuming outliers are double of 1/framerate
+            if (th-median(diff(new_tt)))<median(diff(new_tt))/100,
+                th = median(diff(new_tt))+median(diff(new_tt))/100; %AP to avoid infinite loop
+            end
+            [r c v] = find(diff(new_tt)>th);
+            if ~isempty(r), fprintf('Fixing missing frames (mmap)\n'); end
+            
+            
+            while ~isempty(r)
+                % find how many frames are missing in that gap
+                gapSize  = round( (new_tt(r(1)+1) - new_tt(r(1)))/median(diff(new_tt)) )-1;
+                % create a vector of missing times
+                missVect = new_tt(r(1)) + [1:gapSize].*median(diff(new_tt));
+                % add the time vector
+                new_tt   = [new_tt(1:r(1)); missVect(:); new_tt(r(1)+1:end)];
+                
+                if ~GetInfoOnly
+                    ss = double(Stack);
+                    %Use this for tensor interpolation
+                    [xi yi zi] = meshgrid(1:nCols,1:nRows,linspace(1,2,length(missVect)+2));
+                    iT = interp3(single(ss(:,:,r(1):r(1)+1)),xi,yi,zi);%28/5/14 DS changed to single
+                    iT = iT(:,:,2:end-1); % take only the interpolated ones
+                    Stack = cat(3,cat(3,ss(:,:,1:r(1)), iT), ss(:,:,r(1)+1:end));
+                    display('Missed Frames were interpolated with interp3  (mmap)');
+                                     
+                end
+                % check if there are still gaps with missing frames
+                [r c v]  = find(diff(new_tt) > th);
+            end
+            
+            TimeStamps = new_tt;
+            if ~GetInfoOnly
+                Stack = uint16(Stack);
+            end
         end
     end
     
