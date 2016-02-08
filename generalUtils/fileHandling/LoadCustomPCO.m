@@ -92,7 +92,7 @@ try
             end
         end
         % interpolate if there is a missing frame
-        if max(diff(TimeStamps)) > 2*FrameInterval
+        if max(diff(TimeStamps)) > 1.5*FrameInterval
             new_tt = TimeStamps;
             
             th = 1.5 * median(diff(new_tt)); %DS on 8/4/14...assuming outliers are double of 1/framerate
