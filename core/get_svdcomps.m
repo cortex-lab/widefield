@@ -53,15 +53,15 @@ end
 
 switch ops.rawDataType
     case 'tif'
-        theseFilesDir = dir(fullfile(fileBase, '*.tif'));
+        theseFilesDir = dir(fullfile(ops.fileBase, '*.tif'));
     case 'customPCO'
-        theseFilesDir = dir(fullfile(fileBase, '*.mat'));
+        theseFilesDir = dir(fullfile(ops.fileBase, '*.mat'));
         [~,ii] = sort([theseFilesDir.datenum]);
         theseFilesDir = theseFilesDir(ii);
     case 'StackSet'
-        theseFilesDir = dir(fullfile(fileBase, '*.bin'));
+        theseFilesDir = dir(fullfile(ops.fileBase, '*.bin'));
 end
-theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
+theseFiles = cellfun(@(x)fullfile(ops.fileBase,x),{theseFilesDir.name},'UniformOutput', false);
 
 switch ops.rawDataType    
     case 'tif'                
