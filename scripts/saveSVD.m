@@ -7,29 +7,44 @@ if ops.verbose
 
     fprintf(ops.statusDestination, '  loading timeline files to determine alignments... \n');
 end
+
 nExp = 1;
 nFrPerExp = [];
-timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
-while exist(timelinePath)
-    load(timelinePath)
-    strobeTimes = getStrobeTimes(Timeline, ops.rigName);
-    nFrPerExp(nExp) = numel(strobeTimes);
-    allT{nExp} = strobeTimes;
-    nExp = nExp+1;
-    timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, nExp, 'timeline', 'master');
-end
 
-if sum(nFrPerExp)~=size(V,2)
-    fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
-    alignmentWorked  = false;
+rootFolder = fileparts(dat.expPath(ops.mouseName, ops.thisDate, nExp, 'expInfo', 'master'));
+d = dir(rootFolder);
+numExps = length(d)-2;
+if numExps<1
+    fprintf(1, '    no experiments found at %s\n', rootFolder);
+    numExps = 0;
 else
-    if ops.verbose
-        fprintf(ops.statusDestination, '  alignments correct. \n');
+    expNums = cellfun(@num2str,{d(3:end).name});
+    existExps = [];
+    for e = 1:length(expNums)
+        timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, expNums(e), 'timeline', 'master');
+        if exist(timelinePath)
+            load(timelinePath)
+            strobeTimes = getStrobeTimes(Timeline, ops.rigName);
+            nFrPerExp(e) = numel(strobeTimes);
+            allT{e} = strobeTimes;
+            existExps(end+1) = expNums(e);            
+        end
     end
-    alignmentWorked = true;
+    
+    if sum(nFrPerExp)~=size(V,2)
+        fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
+        alignmentWorked  = false;
+        numExps = length(existExps);
+    else
+        if ops.verbose
+            fprintf(ops.statusDestination, '  alignments correct. \n');
+        end
+        alignmentWorked = true;
+        numExps = 0;
+    end
+    
+    
 end
-
-numExps = nExp-1;
 
 % upload results to server
 filePath = dat.expPath(ops.mouseName, ops.thisDate, 1, 'widefield', 'master');
@@ -56,11 +71,11 @@ if alignmentWorked
 
     for n = 1:numExps
         if ops.verbose
-            fprintf(ops.statusDestination, '  saving V for exp %d... \n', n);
+            fprintf(ops.statusDestination, '  saving V for exp %d... \n', existExps(n));
         end
-        filePath = dat.expPath(ops.mouseName, ops.thisDate, n, 'widefield', 'master');
+        filePath = dat.expPath(ops.mouseName, ops.thisDate, existExps(n), 'widefield', 'master');
         mkdir(filePath);
-        svdFilePath = dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master');
+        svdFilePath = dat.expFilePath(ops.mouseName, ops.thisDate, existExps(n), 'calcium-widefield-svd', 'master');
 
         V = allV(:,fileInds(n)+1:fileInds(n+1));
         t = allT{n};
