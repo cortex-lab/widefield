@@ -18,7 +18,7 @@ if numExps<1
     fprintf(1, '    no experiments found at %s\n', rootFolder);
     numExps = 0;
 else
-    expNums = cellfun(@num2str,{d(3:end).name});
+    expNums = cellfun(@str2num,{d(3:end).name});
     existExps = [];
     for e = 1:length(expNums)
         timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, expNums(e), 'timeline', 'master');
@@ -34,13 +34,13 @@ else
     if sum(nFrPerExp)~=size(V,2)
         fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
         alignmentWorked  = false;
-        numExps = length(existExps);
+        numExps = 0;
     else
         if ops.verbose
             fprintf(ops.statusDestination, '  alignments correct. \n');
         end
         alignmentWorked = true;
-        numExps = 0;
+        numExps = length(existExps);
     end
     
     
