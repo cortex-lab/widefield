@@ -336,18 +336,24 @@ delete(s);
 
 
 function [outData, frNames] = defaultFrameGen(U, V, thisData, mode)
+% default assumes V is a cell array, and you want one frame per V
 
 switch mode
     case 'frames'
-        outData{1} = svdFrameReconstruct(U, V{1}(:,thisData));
-        outData{2} = svdFrameReconstruct(U, V{2}(:,thisData));
-        outData{3} = outData{1}./outData{2};
-    case 'pixel'
-        outData{1} = squeeze(U(thisData(1), thisData(2), :))' * V{1};
-        outData{2} = squeeze(U(thisData(1), thisData(2), :))' * V{2};
-        outData{3} = outData{1}./outData{2};
+        % here, thisData is the current frame number
+        
+        for fr = 1:length(V)
+            outData{fr} = svdFrameReconstruct(U, V{fr}(:,thisData));
+        end
+        
+    case 'pixel'        
+        % here, thisData is the pixel coordinates
+        
+        for fr = 1:length(V)
+            outData{fr} = squeeze(U(thisData(1), thisData(2), :))' * V{fr};
+        end
 end
 
 if nargout>1
-    frNames = {'1', '2', '1./2'};
+    frNames = cellfun(@num2str, num2cell(1:length(V)), 'UniformOutput', false);
 end
