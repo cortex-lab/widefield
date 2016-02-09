@@ -117,7 +117,7 @@ try
             regDs(frameIndex+1:frameIndex+nfr,:)  = ds;
             
             batchInds = 1:ops.nRegisterBatchLimit:nfr;
-            regFrames = zeros(size(imstack));
+            regFrames = zeros(size(imstack), 'like', imstack);
             for b = batchInds
                 theseFrInds = b:min(nfr, b+ops.nRegisterBatchLimit-1);
                 regFrames(:,:,theseFrInds) = register_movie(imstack(:,:,theseFrInds), ops, ds);
