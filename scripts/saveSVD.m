@@ -87,7 +87,7 @@ if alignmentWorked
             save([svdFilePath '_V'], '-v7.3', 'V', 't'); 
         end
 
-        dsFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, n, 'calcium-widefield-svd', 'master') '_summary'];
+        dsFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, existExps(n), 'calcium-widefield-svd', 'master') '_summary'];
         dataSummary.frameNumbers = allDS.frameNumbers(fileInds(n)+1:fileInds(n+1));
         dataSummary.imageMeans = allDS.imageMeans(fileInds(n)+1:fileInds(n+1));
         dataSummary.timeStamps = allDS.timeStamps(fileInds(n)+1:fileInds(n+1));
