@@ -24,7 +24,7 @@ function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 % Controls:
 % - click in the three plots to change pixel, time point, and condition
 % respectively
-% - Use left/right arrow keys to change time point (hold down to play)
+% - Use left/right arrow keys to change time point
 % - Use up/down arrow keys to change condition
 % - Use i/j/k/l to navigate pixels
 % - Use 'p' to play or pause the movie of the selected condition
