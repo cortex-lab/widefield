@@ -38,18 +38,16 @@ Ypix = size(U,1);
 Xpix = size(U,2);
 nSV = size(U,3);
 
-nTimePoints = size(allFrames,3);
-
 eLabels = unique(eventLabels);
 nConditions = length(eLabels);
 
 fprintf(1, 'pre-calculation...\n');
 Fs = 1/median(diff(t));
 winSamps = window(1):1/Fs:window(2);
-periEventTimes = bsxfun(@plus, eventTimes, winSamps); % rows of absolute time points around each event
+periEventTimes = bsxfun(@plus, eventTimes', winSamps); % rows of absolute time points around each event
 periEventV = zeros(nSV, length(eventTimes), length(winSamps));
 for s = 1:nSV
-    periEventV(s,:,:) = interp1(t, V, periEventTimes);
+    periEventV(s,:,:) = interp1(t, V(s,:), periEventTimes);
 end
 
 avgPeriEventV = zeros(nConditions, nSV, length(winSamps));
@@ -122,15 +120,26 @@ switch keydata.Key
     case 'l'
         ud.thisPixel(2) = ud.thisPixel(2)+5;
         if ud.thisPixel(2)>ud.xPix; ud.thisPixel(2) = ud.xPix; end
-%     case 'c'
-%         cax = autoCax(allFrames, thisPixel);
+    case 'hyphen' % scale cax down
+        ud.cax = ud.cax*0.75;
+        caxis(ud.brainAx, ud.cax);
+        ylim(ud.tcAx, ud.cax);
+        ylim(ud.traceAx, ud.cax);
+
+    case 'equal' % scale cax up
+        ud.cax = ud.cax*1.25;
+        caxis(ud.brainAx, ud.cax);
+        ylim(ud.tcAx, ud.cax);
+        ylim(ud.traceAx, ud.cax);
+
 end
 set(f, 'UserData', ud);
 showTC(allData, f);
 
 function tcViewerCallbackClick(f, keydata, allData)
-
-
+f
+keydata
+allData
 figHand = get(f, 'Parent');
 ud = get(figHand, 'UserData');
 
@@ -154,13 +163,14 @@ showTC(allData, figHand);
 
 
 
-function showTC(allData, f)
-ud = get(f, 'UserData');
+function showTC(allData, figHand)
+ud = get(figHand, 'UserData');
 nConditions = ud.nConditions;
 nTimePoints = ud.nTimePoints;
 thisTimePoint = ud.thisTimePoint;
 thisCond = ud.thisCond;
 thisPixel = ud.thisPixel;
+cax = ud.cax;
 
 % V here is nConditions x nSV x nTimePoints
 thisBrainImage = svdFrameReconstruct(allData.U, squeeze(allData.V(thisCond,:,thisTimePoint))');
@@ -168,73 +178,106 @@ thisBrainImage = svdFrameReconstruct(allData.U, squeeze(allData.V(thisCond,:,thi
 thisPixelU = squeeze(allData.U(thisPixel(1),thisPixel(2),:));
 theseTraces = zeros(nConditions, nTimePoints);
 for c = 1:nConditions
-    theseTraces(c,:) = thisPixelU*squeeze(allData.V(thisCond,:,:));
+    theseTraces(c,:) = thisPixelU'*squeeze(allData.V(thisCond,:,:));
 end
 
 thisTC = theseTraces(:,thisTimePoint);
 
+colors = copper(nConditions); colors = colors(:, [3 2 1]);
 
 if ~ud.initialized
     % plot the brain image with a marker where the selected pixel is
-    thisAx = subplot(1,4,1:2); 
-    q = imagesc(allFrames(:,:,thisTimePoint,thisCond)); set(q, 'HitTest', 'off');
+    ud.brainAx = subplot(1,4,1:2); 
+    ud.brainIm = imagesc(thisBrainImage); set(ud.brainIm, 'HitTest', 'off');
     hold on;
-    q = plot(thisPixel(2), thisPixel(1), 'ro'); set(q, 'HitTest', 'off');
+    ud.brainPixelHand = plot(thisPixel(2), thisPixel(1), 'go'); set(ud.brainPixelHand, 'HitTest', 'off');
     hold off;
-    % set(gca, 'YDir', 'normal');
-    caxis(cax);
+    colormap(colormap_blueblackred);
+    caxis(ud.cax);
     colorbar
     title(sprintf('pixel %d, %d selected', thisPixel(1), thisPixel(2)));
-    set(thisAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allFrames, cLabels, timePoints));
-    set(thisAx, 'Tag', 'brainImage');
+    set(ud.brainAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allData));
+    set(ud.brainAx, 'Tag', 'brainImage');
 
     % plot the traces across time for each condition for the selected pixel,
     % along with a marker for zero and for the selected time point
-    thisAx = subplot(1,4,3); 
-    % colors = [0 0 1; 0 0 0.8; 0 0 0.6; 0 0 0.4; 0.4 0 0; 0.6 0 0; 0.8 0 0; 1 0 0];
-    colors = copper(nConditions); colors = colors(:, [3 2 1]);
-    for f = 1:nConditions
-        q = plot(timePoints, squeeze(allFrames(thisPixel(1), thisPixel(2), :, f)), 'Color', colors(f,:));  set(q, 'HitTest', 'off');
-        if f==thisCond
-            set(q, 'LineWidth', 2.0);
+    ud.traceAx = subplot(1,4,3); 
+    
+    for c = 1:nConditions
+        ud.traceHands(c) = plot(allData.winSamps, theseTraces(c,:), 'Color', colors(c,:));  set(ud.traceHands(c), 'HitTest', 'off');
+        if c==thisCond
+            set(ud.traceHands(c), 'LineWidth', 2.0);
         end
         hold on;
     end
-    yl = ylim();
-    q = plot([timePoints(thisTimePoint) timePoints(thisTimePoint)], [cax(1) cax(2)], 'k'); set(q, 'HitTest', 'off');
-    q = plot([0 0], [cax(1) cax(2)], 'k--'); set(q, 'HitTest', 'off');
+    ud.traceThisTimeLine = plot([allData.winSamps(thisTimePoint) allData.winSamps(thisTimePoint)], [cax(1) cax(2)], 'k'); set(ud.traceThisTimeLine, 'HitTest', 'off');
+    ud.traceZeroTimeLine = plot([0 0], [cax(1) cax(2)], 'k--'); set(ud.traceZeroTimeLine, 'HitTest', 'off');
     hold off;
     ylim(cax);
-    title(sprintf('time = %.2fsec selected', timePoints(thisTimePoint)));
-    xlim([timePoints(1) timePoints(end)]);
+    title(sprintf('time = %.2fsec selected', allData.winSamps(thisTimePoint)));
+    xlim([allData.winSamps(1) allData.winSamps(end)]);
     xlabel('time (sec)');
-    set(thisAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allFrames, cLabels, timePoints));
-    set(thisAx, 'Tag', 'traces');
+    set(ud.traceAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allData));
+    set(ud.traceAx, 'Tag', 'traces');
 
     % plot the "tuning curve" - the value at the pixel at this time point for
     % each condition
-    thisAx = subplot(1,4,4); 
+    ud.tcAx = subplot(1,4,4);     
 
-    tc = squeeze(allFrames(thisPixel(1), thisPixel(2), thisTimePoint, :));
-    % q = plot(cLabels(1:4), tc(1:4), 'o-');hold on; set(q, 'HitTest', 'off');
-    % q = plot(cLabels(5:8), tc(5:8), 'o-'); set(q, 'HitTest', 'off');
-    q = plot(cLabels, tc, 'ko-'); hold on; set(q, 'HitTest', 'off');
-    q = plot(cLabels(thisCond), tc(thisCond), 'k*'); set(q, 'HitTest', 'off');
+    ud.tcHand = plot(ud.condXvals, thisTC, 'ko-'); hold on; set(ud.tcHand, 'HitTest', 'off');
+    ud.tcMarkHand = plot(ud.condXvals(thisCond), thisTC(thisCond), 'k*'); set(ud.tcMarkHand, 'HitTest', 'off');
     hold off;
     ylim(cax);
-    if numel(cLabels)>1
-        midC = (cLabels(end)+cLabels(1))/2; cRange = [cLabels(end)-cLabels(1)]*1.1;
+    if numel(ud.condXvals)>1
+        midC = (ud.condXvals(end)+ud.condXvals(1))/2; cRange = [ud.condXvals(end)-ud.condXvals(1)]*1.1;
         xlim([midC-cRange/2 midC+cRange/2]);
     end
-    xlabel('condition value');
-    title(sprintf('value %.2f selected', cLabels(thisCond)));
+    if iscell(allData.eLabels)
+        set(ud.tcHand, 'XLabel', allData.eLabels);
+        title(sprintf('value %.2f selected', allData.eLabels{thisCond}));
+    else
+        title(sprintf('value %.2f selected', allData.eLabels(thisCond)));
+    end
+    xlabel('condition value');    
+    
     ylim(cax);
-    set(thisAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allFrames, cLabels, timePoints));
-    set(thisAx, 'Tag', 'tuningCurves');
+    set(ud.tcAx, 'ButtonDownFcn', @(f,k)tcViewerCallbackClick(f, k, allData));
+    set(ud.tcAx, 'Tag', 'tuningCurves');
+    
+    ud.initialized = true;
+    set(figHand, 'UserData', ud);
 end
 
+% update the already-initialized plots
 
-    
-    
+% brain image
+set(ud.brainIm, 'CData', thisBrainImage);
+set(get(ud.brainAx, 'Title'), 'String', sprintf('pixel %d, %d selected', thisPixel(1), thisPixel(2)));
+
+set(ud.brainPixelHand, 'XData', thisPixel(2), 'YData', thisPixel(1));
+
+
+% traces
+for c = 1:nConditions
+    set(ud.traceHands(c), 'YData', theseTraces(c,:))
+    if c==thisCond
+        set(ud.traceHands(c), 'LineWidth', 2.0);
+    else
+        set(ud.traceHands(c), 'LineWidth', 1.0);
+    end
+end
+set(ud.traceThisTimeLine, 'XData', [allData.winSamps(thisTimePoint) allData.winSamps(thisTimePoint)], 'YData', [cax(1) cax(2)]);
+set(get(ud.traceAx, 'Title'), 'String', sprintf('time = %.2fsec selected', allData.winSamps(thisTimePoint)));
+
+
+% tuning curve
+set(ud.tcHand, 'YData', thisTC);
+set(ud.tcMarkHand, 'XData', ud.condXvals(thisCond), 'YData', thisTC(thisCond));
+
+if iscell(allData.eLabels)
+    set(get(ud.tcAx, 'Title'), 'String', sprintf('value %.2f selected', allData.eLabels{thisCond}));
+else
+    set(get(ud.tcAx, 'Title'), 'String', sprintf('value %.2f selected', allData.eLabels(thisCond)));
+end
 
 
