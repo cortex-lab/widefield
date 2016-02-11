@@ -7,7 +7,7 @@ function U = readUfromNPY(uFilePath, varargin)
 % Expects that U has shape yPix x xPix x nTimePoints
 
 if isempty(varargin)
-    U = readNPY(vFilePath);
+    U = readNPY(uFilePath);
 else
     nSVtoRead = varargin{1};
     [arrayShape, dataType, fortranOrder, littleEndian, totalHeaderLength, npyVersion] = readNPYheader(uFilePath);
