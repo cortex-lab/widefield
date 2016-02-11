@@ -30,6 +30,7 @@ function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 % - Use 'p' to play or pause the movie of the selected condition
 % - Use 'f' or 's' to make playback faster or slower
 % - Use '-' or '=' to make the caxis scale up or down
+% - Hold alt and use arrow keys to rotate/flip the image
 
 
 t = t(:)'; % make row
