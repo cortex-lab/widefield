@@ -352,7 +352,7 @@ end
 % update the already-initialized plots
 
 % brain image
-if strcmp(updateType, 'timePoint') || strcmp(updateType, 'condition')
+if strcmp(updateType, 'timePoint') || strcmp(updateType, 'cond')
     set(ud.brainIm, 'CData', thisBrainImage);
 end
 if strcmp(updateType, 'pixel')
