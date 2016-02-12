@@ -2,48 +2,10 @@
 
 function saveSVD(ops, U, V, dataSummary)
 
+[numExps, nFrPerExp, allT, existExps, alignmentWorked] = determineTimelineAlignments(ops, size(V,2));
+
 if ops.verbose
     fprintf(ops.statusDestination, 'saving SVD results to server... \n');
-
-    fprintf(ops.statusDestination, '  loading timeline files to determine alignments... \n');
-end
-
-nExp = 1;
-nFrPerExp = [];
-
-rootFolder = fileparts(dat.expPath(ops.mouseName, ops.thisDate, nExp, 'expInfo', 'master'));
-d = dir(rootFolder);
-numExps = length(d)-2;
-if numExps<1
-    fprintf(1, '    no experiments found at %s\n', rootFolder);
-    numExps = 0;
-else
-    expNums = cellfun(@str2num,{d(3:end).name});
-    existExps = [];
-    for e = 1:length(expNums)
-        timelinePath = dat.expFilePath(ops.mouseName, ops.thisDate, expNums(e), 'timeline', 'master');
-        if exist(timelinePath)
-            load(timelinePath)
-            strobeTimes = getStrobeTimes(Timeline, ops.rigName);
-            nFrPerExp(e) = numel(strobeTimes);
-            allT{e} = strobeTimes;
-            existExps(end+1) = expNums(e);            
-        end
-    end
-    
-    if sum(nFrPerExp)~=size(V,2)
-        fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
-        alignmentWorked  = false;
-        numExps = 0;
-    else
-        if ops.verbose
-            fprintf(ops.statusDestination, '  alignments correct. \n');
-        end
-        alignmentWorked = true;
-        numExps = length(existExps);
-    end
-    
-    
 end
 
 % upload results to server

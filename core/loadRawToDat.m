@@ -1,19 +1,10 @@
 
 
-function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs, dataType] = loadRawToDat(fileBase, datPath, ops, targetFrame)
-% converts a set of tif files in a directory (specified by fileBase) to a
+function [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs, dataType] = loadRawToDat(datPath, ops, targetFrame)
+% converts a set of tif files in a directory (specified by ops.fileBase) to a
 % flat binary (dat) file in datPath. While doing so,
 
-switch ops.rawDataType
-    case 'tif'
-        theseFilesDir = dir(fullfile(fileBase, '*.tif'));
-    case 'customPCO'
-        theseFilesDir = dir(fullfile(fileBase, '*.mat'));
-        [~,ii] = sort([theseFilesDir.datenum]);
-        theseFilesDir = theseFilesDir(ii);
-end
-theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
-
+theseFiles = generateFileList(ops);
 
 if ~isfield(ops, 'Nframes') || isempty(ops.Nframes)
     if ops.verbose
