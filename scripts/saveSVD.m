@@ -63,15 +63,24 @@ else % alignment didn't work, just save it like U, in the root directory
     if ops.verbose
         fprintf(ops.statusDestination, '  saving V... \n');
     end
-    if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-        writeUVtoNPY([], V, [], fullfile(Upath, 'SVD_Results_V'));
+    
+    if isfield(ops, 'inclExpList') && numel(ops.inclExpList)==1
+        % only gave one experiment. So even if alignment failed, we're
+        % going to put the V in that subfolder
+        vPath = fullfile(Upath, num2str(ops.inclExpList), 'SVD_Results_V');
     else
-        save(fullfile(Upath, 'SVD_Results_V'), '-v7.3', 'V');
+        vPath = fullfile(Upath, 'SVD_Results_V');
+    end
+    
+    if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
+        writeUVtoNPY([], V, [], vPath);
+    else
+        save(vPath, '-v7.3', 'V');
     end
 end
     
 % Register results files with database here??
 
 if ops.verbose
-    fprintf(ops.statusDestination,'done \n');
+    fprintf(ops.statusDestination,'done saving\n');
 end
