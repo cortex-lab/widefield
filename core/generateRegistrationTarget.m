@@ -1,23 +1,15 @@
 
 
 function [targetImg, nFr] = generateRegistrationTarget(fileBase, ops)
-
-% fileBase is a directory with a bunch of tif files. 
-switch ops.rawDataType
-    case 'tif'
-        theseFilesDir = dir(fullfile(fileBase, '*.tif'));
-    case 'customPCO'
-        theseFilesDir = dir(fullfile(fileBase, '*.mat'));
-        [~,ii] = sort([theseFilesDir.datenum]);
-        theseFilesDir = theseFilesDir(ii);
-end
-theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);
+ 
+theseFiles = generateFileList(ops);
 
 if ops.verbose
     statusDest = ops.statusDestination;
 else
     statusDest = [];
 end
+
 switch ops.rawDataType    
     case 'tif'        
         [nFr, nFrPerFile] = getNFramesFromTifFiles(theseFiles, statusDest);

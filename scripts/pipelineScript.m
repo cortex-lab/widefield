@@ -39,7 +39,7 @@ if ~exist(ops.datPath)
     
     tic
     [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = ...
-        loadRawToDat(ops.fileBase, ops.datPath, ops, targetFrame);
+        loadRawToDat(ops.datPath, ops, targetFrame);
     dataSummary.frameNumbers = frameNumbers;
     dataSummary.imageMeans = imageMeans;
     dataSummary.timeStamps = timeStamps;
