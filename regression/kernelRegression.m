@@ -20,8 +20,9 @@ function fit_kernels = kernelRegression(inSignal, t, eventTimes, eventValues, wi
 %
 % TODO: 
 % - implement ridge regression with added data at the end
-%
-% Some future version could also allow for fitting as a sum of basis
+% - for cases in which the events have values, should also fit an
+% "intercept" for the same event with values 1
+% - Some future version could also allow for fitting as a sum of basis
 % functions rather than this simplified "1's" method
 
 Fs = 1/mean(diff(t));

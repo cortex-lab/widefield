@@ -35,6 +35,8 @@ function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 
 t = t(:)'; % make row
 eventTimes = eventTimes(:)';
+[eventTimes, ii] = sort(eventTimes);
+eventLabels = eventLabels(ii);
 
 Ypix = size(U,1);
 Xpix = size(U,2);
