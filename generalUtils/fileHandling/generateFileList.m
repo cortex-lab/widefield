@@ -65,5 +65,7 @@ switch rawDataType
         theseFilesDir = dir(fullfile(fileBase, '*.mat'));
         [~,ii] = sort([theseFilesDir.datenum]);
         theseFilesDir = theseFilesDir(ii);
+    case 'StackSet'
+        theseFilesDir = dir(fullfile(ops.fileBase, '*.bin'));
 end
 theseFiles = cellfun(@(x)fullfile(fileBase,x),{theseFilesDir.name},'UniformOutput', false);

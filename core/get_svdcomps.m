@@ -51,17 +51,7 @@ if ~isfield(ops, 'hasBinaryStamp')
     ops.hasBinaryStamp = false;
 end
 
-switch ops.rawDataType
-    case 'tif'
-        theseFilesDir = dir(fullfile(ops.fileBase, '*.tif'));
-    case 'customPCO'
-        theseFilesDir = dir(fullfile(ops.fileBase, '*.mat'));
-        [~,ii] = sort([theseFilesDir.datenum]);
-        theseFilesDir = theseFilesDir(ii);
-    case 'StackSet'
-        theseFilesDir = dir(fullfile(ops.fileBase, '*.bin'));
-end
-theseFiles = cellfun(@(x)fullfile(ops.fileBase,x),{theseFilesDir.name},'UniformOutput', false);
+theseFiles = generateFileList(ops);
 
 switch ops.rawDataType    
     case 'tif'                
