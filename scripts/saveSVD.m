@@ -9,22 +9,24 @@ if ops.verbose
 end
 
 % upload results to server
+
 filePath = dat.expPath(ops.mouseName, ops.thisDate, 1, 'widefield', 'master');
 Upath = fileparts(filePath); % root for the date - we'll put U (etc) and data summary here
 if ~exist(Upath)
     mkdir(Upath);
 end
 
-if ops.verbose
-    fprintf(ops.statusDestination, '  saving U... \n');
-end
-if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U'), []);
-else
-    save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
-end
-save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
+if ~isfield(ops, 'saveAllToExp') || ~ops.saveAllToExp
 
+    if ops.verbose
+        fprintf(ops.statusDestination, '  saving U... \n');
+    end
+    
+    saveU(U, Upath, ops);
+    saveDSAsMat(dataSummary, Upath, ops);    
+
+end
+    
 if alignmentWorked
 
     allDS = dataSummary;
@@ -42,12 +44,7 @@ if alignmentWorked
         V = allV(:,fileInds(n)+1:fileInds(n+1));
         t = allT{n};
 
-        if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-            writeUVtoNPY([], V, [], [svdFilePath '_V']);
-            writeNPY(t, [svdFilePath '_t.npy']);
-        else
-            save([svdFilePath '_V'], '-v7.3', 'V', 't'); 
-        end
+        saveV(V, t, svdFilePath, ops);
 
         dsFilePath = [dat.expFilePath(ops.mouseName, ops.thisDate, existExps(n), 'calcium-widefield-svd', 'master') '_summary'];
         dataSummary.frameNumbers = allDS.frameNumbers(fileInds(n)+1:fileInds(n+1));
@@ -56,8 +53,17 @@ if alignmentWorked
         if ops.doRegistration
             dataSummary.regDs = allDS.regDs(fileInds(n)+1:fileInds(n+1),:);
         end
-        save(dsFilePath, 'dataSummary');
+        
+        saveDSAsMat(dataSummary, dsFilePath, ops)                
 
+        if isfield(ops, 'saveAllToExp') && ops.saveAllToExp
+            if ops.verbose
+                fprintf(ops.statusDestination, '  saving U... \n');
+            end
+            thisUpath = dat.expFilePath(ops.mouseName, ops.thisDate, existExps(n), 'calcium-widefield-svd', 'master');
+            saveU(U, thisUpath(1:end-3), ops);
+        end
+        
     end
 else % alignment didn't work, just save it like U, in the root directory
     if ops.verbose
@@ -67,15 +73,21 @@ else % alignment didn't work, just save it like U, in the root directory
     if isfield(ops, 'inclExpList') && numel(ops.inclExpList)==1
         % only gave one experiment. So even if alignment failed, we're
         % going to put the V in that subfolder
-        vPath = fullfile(Upath, num2str(ops.inclExpList), 'SVD_Results_V');
+        vPath = fullfile(Upath, num2str(ops.inclExpList), 'SVD_Results');
     else
-        vPath = fullfile(Upath, 'SVD_Results_V');
+        vPath = fullfile(Upath, 'SVD_Results');
     end
     
-    if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-        writeUVtoNPY([], V, [], vPath);
-    else
-        save(vPath, '-v7.3', 'V');
+    saveV(V, [], vPath, ops);
+    
+    if isfield(ops, 'saveAllToExp') && ops.saveAllToExp
+        % we skipped saving U before, because we thought we'd save it to
+        % the subdirectory. But the alignment didn't work so we're skipping
+        % that idea. 
+        if ops.verbose
+            fprintf(ops.statusDestination, '  saving U... \n');
+        end
+        saveU(U, Upath, ops);
     end
 end
     
@@ -84,3 +96,28 @@ end
 if ops.verbose
     fprintf(ops.statusDestination,'done saving\n');
 end
+
+
+function saveU(U, Upath, ops)
+if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
+    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U'), []);
+else
+    save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
+end
+
+function saveV(V, t, Vpath, ops)
+if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
+    writeUVtoNPY([], V, [], [Vpath '_V']);
+    if ~isempty(t)
+        writeNPY(t, [Vpath '_t.npy']);
+    end
+else
+    if ~isempty(t)
+        save([Vpath '_V'], '-v7.3', 'V', 't');
+    else
+        save([Vpath '_V'], '-v7.3', 'V');
+    end
+end
+
+function saveDSAsMat(dataSummary, Upath, ops)
+    save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
