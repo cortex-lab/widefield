@@ -80,6 +80,9 @@ try
         imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);       
         
         if ops.binning>1
+            if ops.verbose
+                fprintf(ops.statusDestination, '  binning image\n');
+            end
             imstack = binImage(imstack, ops.binning);            
         end                
         

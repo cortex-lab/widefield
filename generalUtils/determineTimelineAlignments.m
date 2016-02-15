@@ -27,6 +27,9 @@ if numExps<1
         fprintf(ops.statusDestination, '    no experiments found at %s\n', rootFolder);
     end
     numExps = 0;
+    allT = {};
+    existExps = [];
+    alignmentWorked = false;
 else
     expNums = cellfun(@str2num,{d(3:end).name});
     if isfield(ops, 'inclExpList') && ~isempty(ops.inclExpList)
@@ -51,6 +54,8 @@ else
         end
         alignmentWorked  = false;
         numExps = 0;
+        allT = {};
+        existExps = [];
     else
         if ops.verbose
             fprintf(ops.statusDestination, '  alignments correct. \n');

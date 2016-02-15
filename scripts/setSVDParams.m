@@ -3,12 +3,12 @@
 function ops = setSVDParams()
 
 ops.mouseName = 'EJ010'; 
-ops.thisDate = '2016-02-03';
+ops.thisDate = '2016-02-10b';
 
 ops.rigName = 'bigrig';
 
 % ops.fileBase = fullfile('L:\data\', ops.mouseName, ops.thisDate); % where the raw tif files are
-ops.fileBase = fullfile('L:\data\', ops.mouseName);
+ops.fileBase = fullfile('L:\data\', ops.mouseName, '2016-02-10', 'cam1\');
 
 ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']); % file to create. 
 % should be a fast, local drive. Need disk space equal to the size of the
@@ -41,7 +41,7 @@ ops.binning = 4; % set to 2 for 2x2 binning, 3 for 3x3, etc. Setting to 1 skips 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
 ops.nSVD = 2000; % number of SVD components to keep
 
-ops.Fs = 50; % sampling rate of the movie
+ops.Fs = 35; % sampling rate of the movie
 
 ops.useGPU = true;
 

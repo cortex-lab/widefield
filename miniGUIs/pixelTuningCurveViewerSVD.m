@@ -55,7 +55,7 @@ end
 avgPeriEventV = zeros(nConditions, nSV, length(winSamps));
 for c = 1:nConditions
     if iscell(eventLabels)
-        thisCondEvents = cellfun(@(x)eq(x,eLabels(c)),eventLabels);
+        thisCondEvents = cellfun(@(x)strcmp(x,eLabels(c)),eventLabels);
     else
         thisCondEvents = eventLabels==eLabels(c);
     end
@@ -334,8 +334,9 @@ if strcmp(updateType, 'init')
         xlim([midC-cRange/2 midC+cRange/2]);
     end
     if iscell(allData.eLabels)
-        set(ud.tcHand, 'XLabel', allData.eLabels);
-        title(sprintf('value %.2f selected', allData.eLabels{thisCond}));
+        set(ud.tcAx, 'XTick', ud.condXvals);
+        set(ud.tcAx, 'XTickLabel', allData.eLabels);
+        title(sprintf('value %s selected', allData.eLabels{thisCond}));
     else
         title(sprintf('value %.2f selected', allData.eLabels(thisCond)));
     end
@@ -393,7 +394,7 @@ if strcmp(updateType, 'cond') || strcmp(updateType, 'pixel') || strcmp(updateTyp
 end
 if strcmp(updateType, 'cond')
     if iscell(allData.eLabels)
-        set(get(ud.tcAx, 'Title'), 'String', sprintf('value %.2f selected', allData.eLabels{thisCond}));
+        set(get(ud.tcAx, 'Title'), 'String', sprintf('value %s selected', allData.eLabels{thisCond}));
     else
         set(get(ud.tcAx, 'Title'), 'String', sprintf('value %.2f selected', allData.eLabels(thisCond)));
     end
