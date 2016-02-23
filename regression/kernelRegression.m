@@ -40,13 +40,14 @@ csWins = cumsum([0 nWinSamps]);
 A = zeros(nT,nWinSampsTotal);
 
 for ev = 1:length(eventTimes)
-    [tp, ii] = findNearestPoint(eventTimes{ev}, t);
+    [theseET, sortI] = sort(eventTimes{ev}(:)');
+    [tp, ii] = findNearestPoint(theseET, t);
     eventFrames = ii+startOffset(ev);
     
     if isempty(eventValues{ev})
         theseEventValues = ones(size(eventFrames));
     else
-        theseEventValues = eventValues{ev};
+        theseEventValues = eventValues{ev}(sortI);
     end
     
     for w = 1:nWinSamps(ev)
