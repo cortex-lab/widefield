@@ -299,6 +299,8 @@ switch lower(keydata.Key)
         for axInd = 1:length(ud.ImageAxisHandle)
             caxis(ud.ImageAxisHandle(axInd), ud.cax);
         end
+    case 'b'
+        ud.currentFrame = ud.currentFrame-20*ud.rate;
         
 end
 set(figHandle, 'UserData', ud);

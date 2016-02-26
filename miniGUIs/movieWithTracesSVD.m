@@ -306,6 +306,8 @@ switch lower(keydata.Key)
     case 'equal' % scale cax up
         ud.cax = ud.cax*1.25;
         caxis(ud.ImageAxisHandle, ud.cax);
+    case 'b'
+        ud.currentFrame = ud.currentFrame-20*ud.rate;    
         
 end
 set(figHandle, 'UserData', ud);
