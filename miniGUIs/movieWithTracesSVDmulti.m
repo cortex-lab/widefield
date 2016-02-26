@@ -343,14 +343,22 @@ switch mode
         % here, thisData is the current frame number
         
         for fr = 1:length(V)
-            outData{fr} = svdFrameReconstruct(U, V{fr}(:,thisData));
+            if iscell(U)
+                outData{fr} = svdFrameReconstruct(U{fr}, V{fr}(:,thisData));
+            else
+                outData{fr} = svdFrameReconstruct(U, V{fr}(:,thisData));
+            end
         end
         
     case 'pixel'        
         % here, thisData is the pixel coordinates
         
         for fr = 1:length(V)
-            outData{fr} = squeeze(U(thisData(1), thisData(2), :))' * V{fr};
+            if iscell(U)
+                outData{fr} = squeeze(U{fr}(thisData(1), thisData(2), :))' * V{fr};
+            else
+                outData{fr} = squeeze(U(thisData(1), thisData(2), :))' * V{fr};
+            end
         end
 end
 

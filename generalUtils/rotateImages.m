@@ -78,15 +78,15 @@ figure; imagesc(newInputImage)
 
 %% rotate everything
 
-newU = zeros(size(baseImage,1),size(baseImage,2),size(U,3), 'like', U);
-for uInd = 1:size(U,3)
+newU = zeros(size(baseImage,1),size(baseImage,2),size(U2,3), 'like', U);
+for uInd = 1:size(U2,3)
     msg = sprintf('%d... ', uInd);
     fprintf(1, msg);
     
     if doFlipVert
-        thisIm = flipud(U(:,:,uInd));
+        thisIm = flipud(U2(:,:,uInd));
     else
-        thisIm = U(:,:,uInd);
+        thisIm = U2(:,:,uInd);
     end
     
     newU(:,:,uInd) = imtransform(thisIm, t_concord,'XData',[1 size(baseImage,2)], 'YData',[1 size(baseImage,1)]);
