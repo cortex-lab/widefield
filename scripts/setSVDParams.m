@@ -2,13 +2,14 @@
 
 function ops = setSVDParams()
 
-ops.mouseName = 'EJ010'; 
-ops.thisDate = '2016-02-10b';
+ops.mouseName = 'SzentGyurgyi'; 
+ops.thisDate = '2016-02-21_2';
 
 ops.rigName = 'bigrig';
 
 % ops.fileBase = fullfile('L:\data\', ops.mouseName, ops.thisDate); % where the raw tif files are
-ops.fileBase = fullfile('L:\data\', ops.mouseName, '2016-02-10', 'cam1\');
+% ops.fileBase = fullfile('L:\data\', ops.mouseName, '2016-02-10', 'cam1\');
+ops.fileBase = fullfile('L:\data\SG\2016-02-21_2');
 
 ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']); % file to create. 
 % should be a fast, local drive. Need disk space equal to the size of the
