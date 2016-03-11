@@ -86,7 +86,7 @@ try
         if fileInd==1
             sz = size(imstack);
             imageSize = sz(1:2);
-            meanImage = zeros(imageSize);
+            sumImage = zeros(imageSize);
         end
         
         if ops.verbose
@@ -98,7 +98,7 @@ try
         if ops.verbose
             fprintf(ops.statusDestination, '  computing mean image\n');
         end
-        meanImage = meanImage+double(mean(imstack,3))*(nfr/nFrames);
+        sumImage = sumImage+sum(double(imstack),3);
         
         if ops.verbose
             fprintf(ops.statusDestination, '  saving to dat\n');
@@ -118,13 +118,16 @@ fclose(fid);
 
 timeStamps = timeStamps*24*3600; % convert to seconds from days
 
+nFrames = numel(frameNumbers);
+meanImage = sumImages/nFrames;
+
 dataSummary.frameNumbers = frameNumbers;
 dataSummary.imageMeans = imageMeans;
 dataSummary.timeStamps = timeStamps;
 dataSummary.meanImage = meanImage;
 dataSummary.imageSize = imageSize;
 dataSummary.dataType = class(imstack);
-dataSummary.nFrames = numel(frameNumbers);
+dataSummary.nFrames = nFrames;
 
 if ops.verbose
     fprintf(ops.statusDestination, '  done\n');
