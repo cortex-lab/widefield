@@ -11,25 +11,25 @@ save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
 
 %% load all movies into flat binary files
 
-for v = 1:length(ops.vids)
-    
-    ops.theseFiles = [];
-    theseFiles = generateFileList(ops, v);
-    
-    ops.vids(v).theseFiles = theseFiles;
-    ops.theseFiles = theseFiles;
-    
-    ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
-    
-    dataSummary = loadRawToDat(ops, v);
-    
-    fn = fieldnames(dataSummary);
-    for f = 1:length(fn)
-        results.vids(v).(fn{f}) = dataSummary.(fn{f});
-    end
-    
-    save(fullfile(ops.localSavePath, 'results.mat'), 'results');
-end
+% for v = 1:length(ops.vids)
+%     
+%     ops.theseFiles = [];
+%     theseFiles = generateFileList(ops, v);
+%     
+%     ops.vids(v).theseFiles = theseFiles;
+%     ops.theseFiles = theseFiles;
+%     
+%     ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
+%     
+%     dataSummary = loadRawToDat(ops, v);
+%     
+%     fn = fieldnames(dataSummary);
+%     for f = 1:length(fn)
+%         results.vids(v).(fn{f}) = dataSummary.(fn{f});
+%     end
+%     
+%     save(fullfile(ops.localSavePath, 'results.mat'), 'results');
+% end
 
 %% do image registration? 
 % Register the blue image and apply the registration to the other movies
