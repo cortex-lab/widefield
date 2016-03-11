@@ -3,19 +3,19 @@
 function ops = setSVDParams()
 
 ops.mouseName = 'Domagk'; 
-ops.thisDate = '2016-03-10';
+ops.thisDate = '2016-03-11';
 
-ops.vids(1).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_2');
+ops.vids(1).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, 'cam2');
 ops.vids(1).frameMod = [2,0]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
 ops.vids(1).rigName = 'bigrig2';
-ops.vids(1).name = 'blue';
+ops.vids(1).name = 'green';
 
-ops.vids(2).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_2');
+ops.vids(2).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, 'cam2');
 ops.vids(2).frameMod = [2,1];
 ops.vids(2).rigName = 'bigrig2';
-ops.vids(2).name = 'green';
+ops.vids(2).name = 'blue';
 
-ops.vids(3).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_1');
+ops.vids(3).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, 'cam1');
 ops.vids(3).frameMod = [1,0];
 ops.vids(3).rigName = 'bigrig1';
 ops.vids(3).name = 'red';
@@ -42,7 +42,7 @@ ops.hasBinaryStamp = true; % if the binary time stamps were turned on
 % ops.hasASCIIstamp = false; % if your movie has legible timestamps in the corner
 % ops.hasBinaryStamp = true; % if the binary time stamps were turned on (true for customPCO)
 
-ops.binning = 4; % set to 2 for 2x2 binning, 3 for 3x3, etc. Setting to 1 skips this.
+ops.binning = 3; % set to 2 for 2x2 binning, 3 for 3x3, etc. Setting to 1 skips this.
 
 ops.NavgFramesSVD = 7500; % number of frames to include in this computation
 ops.nSVD = 2000; % number of SVD components to keep
