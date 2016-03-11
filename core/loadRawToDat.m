@@ -119,7 +119,7 @@ fclose(fid);
 timeStamps = timeStamps*24*3600; % convert to seconds from days
 
 nFrames = numel(frameNumbers);
-meanImage = sumImages/nFrames;
+meanImage = sumImage/nFrames;
 
 dataSummary.frameNumbers = frameNumbers;
 dataSummary.imageMeans = imageMeans;
