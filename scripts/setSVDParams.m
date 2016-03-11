@@ -2,20 +2,25 @@
 
 function ops = setSVDParams()
 
-ops.mouseName = 'SzentGyurgyi'; 
-ops.thisDate = '2016-02-21_2';
+ops.mouseName = 'Domagk'; 
+ops.thisDate = '2016-03-10';
 
-ops.rigName = 'bigrig';
+ops.vids(1).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_2');
+ops.vids(1).frameMod = [2,0]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
+ops.vids(1).rigName = 'bigrig2';
+ops.vids(1).name = 'blue';
 
-% ops.fileBase = fullfile('L:\data\', ops.mouseName, ops.thisDate); % where the raw tif files are
-% ops.fileBase = fullfile('L:\data\', ops.mouseName, '2016-02-10', 'cam1\');
-ops.fileBase = fullfile('L:\data\SG\2016-02-21_2');
+ops.vids(2).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_2');
+ops.vids(2).frameMod = [2,1];
+ops.vids(2).rigName = 'bigrig2';
+ops.vids(2).name = 'green';
 
-ops.datPath = fullfile('J:\', ops.mouseName, ops.thisDate, [ops.thisDate '.dat']); % file to create. 
-% should be a fast, local drive. Need disk space equal to the size of the
-% raw tif files. 
+ops.vids(3).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '2016-03-10_1');
+ops.vids(3).frameMod = [1,0];
+ops.vids(3).rigName = 'bigrig1';
+ops.vids(3).name = 'red';
 
-ops.localSavePath = fullfile('J:\', ops.mouseName, ops.thisDate); % where to put results temporarily on a local disk. 
+ops.localSavePath = '/mnt/data/svdinput/temp/'; % where to put results temporarily on a local disk. 
 
 ops.verbose = true;
 ops.statusDestination = 1; % set this to 1 for status messages to appear on the screen. 
@@ -45,8 +50,6 @@ ops.nSVD = 2000; % number of SVD components to keep
 ops.Fs = 35; % sampling rate of the movie
 
 ops.useGPU = true;
-
-ops.RegFile = ops.datPath;
 
 % registration parameters
 ops.doRegistration = false;

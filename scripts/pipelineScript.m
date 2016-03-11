@@ -1,96 +1,89 @@
 
 
-% script to run Marius's SVD. To use it, first copy setSVDParams.m into the
-% root directory of this repository and rename it to mySetSVDparams.m. Edit
-% that file with the options you want. Then run:
+% New pipeline script. 
+% As before, first set options variable "ops". 
 
-% >> ops = mySetSVDparams();
-
-% Then run this script. 
-
-
-
-
-%% First step, convert the tif files into a binary file. 
-% Along the way we'll compute timestamps, meanImage, etc. 
-% This is also the place to do image registration if desired, so that the
-% binary file will contain the registered images.
 
 if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
 end
 save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
 
-if ~exist(ops.datPath)
+%% load all movies into flat binary files
+
+for v = 1:length(ops.vids)
     
-    if ops.doRegistration
-        % if you want to do registration, we need to first determine the
-        % target image. 
-        tic
-        if ops.verbose
-            fprintf(ops.statusDestination, 'determining target image\n');
-        end
-        [targetFrame, nFr] = generateRegistrationTarget(ops.fileBase, ops);
-        ops.Nframes = nFr;
-        toc
-    else
-        targetFrame = [];
-    end    
+    theseFiles = generateFileList(ops, v);
     
+    ops.vids(v).theseFiles = theseFiles;
+    ops.theseFiles = theseFiles;
+    
+    ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
+    
+    dataSummary = loadRawToDat(ops, v);
+    
+    fn = fieldnames(dataSummary);
+    for f = 1:length(fn)
+        results.vids(v).(fn{f}) = dataSummary.(fn{f});
+    end
+    
+    save(fullfile(ops.localSavePath, 'results.mat'), 'results');
+end
+
+%% do image registration? 
+% Register the blue image and apply the registration to the other movies
+if ops.doRegistration
+    % if you want to do registration, we need to first determine the
+    % target image.
     tic
-    [frameNumbers, imageMeans, timeStamps, meanImage, imageSize, regDs] = ...
-        loadRawToDat(ops.datPath, ops, targetFrame);
-    dataSummary.frameNumbers = frameNumbers;
-    dataSummary.imageMeans = imageMeans;
-    dataSummary.timeStamps = timeStamps;
-    dataSummary.meanImage = meanImage;
-    dataSummary.imageSize = imageSize;
-    dataSummary.regDs = regDs;    
-    dataSummary.registrationTargetFrame = targetFrame;
-    save(fullfile(ops.localSavePath, 'dataSummary.mat'), 'dataSummary');
+    if ops.verbose
+        fprintf(ops.statusDestination, 'determining target image\n');
+    end
+    [targetFrame, nFr] = generateRegistrationTarget(ops.fileBase, ops);
+    ops.Nframes = nFr;
     toc
 else
-    load(fullfile(ops.localSavePath, 'dataSummary.mat'));
+    targetFrame = [];
 end
 
-%% Second step, compute and save SVD
-ops.Ly = dataSummary.imageSize(1); ops.Lx = dataSummary.imageSize(2); % not actually used in SVD function, just locally here
+%% do hemodynamic correction?
 
-if ops.doRegistration
-    minDs = min(dataSummary.regDs, [], 1);
-    maxDs = max(dataSummary.regDs, [], 1);
 
-    ops.yrange = ceil(maxDs(1)):floor(ops.Ly+minDs(1));
-    ops.xrange = ceil(maxDs(2)):floor(ops.Lx+minDs(2));    
-else
-    ops.yrange = 1:ops.Ly; % subselection/ROI of image to use
-    ops.xrange = 1:ops.Lx;
+
+%% perform SVD
+for v = 1:length(ops.vids)
+    fprintf(ops.statusDestination, ['svd on ' ops.vids(v).name]);
+    
+    ops.Ly = results.vids(v).imageSize(1); ops.Lx = results.vids(v).imageSize(2); % not actually used in SVD function, just locally here
+
+    if ops.doRegistration
+        minDs = min(dataSummary.regDs, [], 1);
+        maxDs = max(dataSummary.regDs, [], 1);
+
+        ops.yrange = ceil(maxDs(1)):floor(ops.Ly+minDs(1));
+        ops.xrange = ceil(maxDs(2)):floor(ops.Lx+minDs(2));    
+    else
+        ops.yrange = 1:ops.Ly; % subselection/ROI of image to use
+        ops.xrange = 1:ops.Lx;
+    end
+    ops.Nframes = numel(results.vids(v).timeStamps); % number of frames in whole movie
+
+    ops.mimg = results.vids(v).meanImage;
+
+    ops.ResultsSaveFilename = [];
+    ops.theseFiles = ops.vids(v).theseFiles;
+    ops.RegFile = ops.vids(v).thisDatPath;
+    
+    tic
+    [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
+    toc
+    
+    results.vids(v).U = U;
+    results.vids(v).V = V;
+    results.vids(v).Sv = Sv;
+    results.vids(v).totalVar = totalVar;
+    
 end
-ops.Nframes = numel(dataSummary.timeStamps); % number of frames in whole movie
 
-ops.mimg = dataSummary.meanImage;
-
-ops.ResultsSaveFilename = [];
-
-tic
-[ops, U, Sv, V, totalVar] = get_svdcomps(ops);
-toc
-dataSummary.Sv = Sv;
-dataSummary.totalVar = totalVar;
-
-% save results locally first in case something goes wrong with getting them
-% to the server
-save(fullfile(ops.localSavePath, 'SVD_results'), '-v7.3', 'U', 'Sv', 'V', 'totalVar', 'dataSummary', 'ops');
-saveSVD(ops, U, V, dataSummary)
-
-fprintf(ops.statusDestination, 'all done, success!\n');
-
-if ops.statusDestination~=1 
-    % close the file
-    fclose(ops.statusDestination);
-end
-
-
-%%
-% svdViewer(U, Sv, V, ops.Fs, totalVar)
-
+%% save
+save(fullfile(ops.localSavePath, 'results.mat'), 'results');
