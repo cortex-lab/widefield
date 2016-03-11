@@ -13,6 +13,7 @@ save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
 
 for v = 1:length(ops.vids)
     
+    ops.theseFiles = [];
     theseFiles = generateFileList(ops, v);
     
     ops.vids(v).theseFiles = theseFiles;
