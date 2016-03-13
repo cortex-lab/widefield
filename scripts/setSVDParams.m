@@ -6,12 +6,12 @@ ops.mouseName = 'Domagk';
 ops.thisDate = '2016-03-11';
 
 ops.vids(1).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, 'cam2');
-ops.vids(1).frameMod = [2,0]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
+ops.vids(1).frameMod = [2,1]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
 ops.vids(1).rigName = 'bigrig2';
 ops.vids(1).name = 'green';
 
 ops.vids(2).fileBase = fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, 'cam2');
-ops.vids(2).frameMod = [2,1];
+ops.vids(2).frameMod = [2,0];
 ops.vids(2).rigName = 'bigrig2';
 ops.vids(2).name = 'blue';
 
@@ -20,7 +20,8 @@ ops.vids(3).frameMod = [1,0];
 ops.vids(3).rigName = 'bigrig1';
 ops.vids(3).name = 'red';
 
-ops.localSavePath = '/mnt/data/svdinput/temp/'; % where to put results temporarily on a local disk. 
+ops.localSavePath = fullfile('/mnt/data/svdinput/temp/', ops.mouseName, ops.thisDate); % where to put results temporarily on a local disk. 
+mkdir(ops.localSavePath);
 
 ops.verbose = true;
 ops.statusDestination = 1; % set this to 1 for status messages to appear on the screen. 
