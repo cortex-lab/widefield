@@ -3,7 +3,7 @@
 function s = listen()
 
 % start the svdVid object
-s = svdVideoObject('-');
+s = svdVideoObj('-');
 
 % Now setup the UDP communication - code from +et, Krumin
 
@@ -14,3 +14,5 @@ fakeIP = '1.1.1.1';
 myUDP = udp(fakeIP, 1103, 'LocalPort', 1001);
 fopen(myUDP);
 set(myUDP, 'DatagramReceivedFcn', @(src, evt)svdVid.UDPCallback(src, evt, s));
+
+s.myUDP = myUDP;

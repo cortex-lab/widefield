@@ -9,6 +9,7 @@ classdef svdVideoObj < handle
     
     properties
         ops 
+        myUDP
     end
     
     methods (Static)
@@ -30,15 +31,16 @@ classdef svdVideoObj < handle
     
     methods                
         
-        function addExpDat(this, expDat)            
-            if isempty(this.expDat)
-                this.ops.expDats = expDat;
-                [subjectRef, expDate, ~] = parseExpRef(expDat.expRef);
+        function addExpDat(this, expDat)      
+            fprintf(1, 'adding expDat w/in svd obj\n')
+            if ~isfield(this.ops, 'expRefs') || isempty(this.ops.expRefs)
+                this.ops.expRefs = {expDat.expRef};
+                [subjectRef, expDate, ~] = dat.parseExpRef(expDat.expRef);
                 this.ops.mouseName = subjectRef;
-                this.ops.thisDate = expDate;
-                this.ops.localSavePath = fullfile('/mnt/data/svdinput/temp/', this.ops.mouseName, this.ops.thisDate);
+                this.ops.thisDate = datestr(expDate, 'yyyy-mm-dd');
+                this.ops.localSavePath = fullfile('/mnt/fastssd/', this.ops.mouseName, this.ops.thisDate);
             else
-                this.ops.expDats(end+1) = expDat;
+                this.ops.expRefs{end+1} = expDat.expRef;
             end
         end  
         
@@ -58,7 +60,7 @@ classdef svdVideoObj < handle
             for n = 1:nCams
                 fprintf(1, '  For camera %d:\n', n);
                 
-                camIDNum = input('  What is the total ID number of this camera? [2] ');
+                camIDNum = input('  What is the ID number of this camera? [2] ');
                 if isempty(camIDNum); camIDNum = 2; end
                 this.ops.camIDNums(end+1) = camIDNum;
                 
@@ -73,11 +75,11 @@ classdef svdVideoObj < handle
                 
                 if nColors>1
                     
-                    pattern = input(sprintf('    What is the pattern of colors? [%d] ', 1:nColors));
-                    if isempty(pattern); pattern = 1:nColors; end
+%                     pattern = input(sprintf('    What is the pattern of colors? [] ', 1:nColors));
+%                     if isempty(pattern); pattern = 1:nColors; end
                     
                     for c = 1:nColors
-                        thisName = input(sprintf('    Name of color %d? [cam%dcolor%d] ', c, camIDNum, c));
+                        thisName = input(sprintf('    Name of color %d? [cam%dcolor%d] ', c, camIDNum, c), 's');
                         if isempty(thisName); thisName = sprintf('cam%dcolor%d', camIDNum, c); end
                         
                         this.ops.vids(vidNum).name = thisName;
@@ -103,6 +105,10 @@ classdef svdVideoObj < handle
                 
             end
             
+            objectiveType = input('Camera objective? [1] ', 's');
+            if isempty(objectiveType); objectiveType = 1; end
+            this.ops.objectiveType = objectiveType;        
+            
             hasASCIIstamp = input('Using ASCII stamps? [1] ');
             if isempty(hasASCIIstamp); hasASCIIstamp = true; end
             this.ops.hasASCIIstamp = logical(hasASCIIstamp);
@@ -111,7 +117,7 @@ classdef svdVideoObj < handle
             if isempty(binning); binning = 1; end
             this.ops.binning = binning;
             
-            userName = input('Your name? [] ');
+            userName = input('Your name? [] ', 's');
             if isempty(userName); userName = 'unknownUser'; end
             this.ops.userName = userName;
             
@@ -138,13 +144,17 @@ classdef svdVideoObj < handle
                 end
             end
             
-            save(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, 'ops.mat'), this.ops);
+            ops = this.ops;
+            save(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, 'ops.mat'), 'ops');
             
             fprintf(1, 'Made directories for you at %s, go copy your files there\n', fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate));                        
             
         end
         
-        
+        function delete(this)
+            fprintf(1, 'closing udp connection\n');
+            fclose(this.myUDP);
+        end
     end
 end
 

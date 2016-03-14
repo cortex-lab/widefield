@@ -50,7 +50,7 @@ ops.nSVD = 2000; % number of SVD components to keep
 
 ops.Fs = 35; % sampling rate of the movie
 
-ops.useGPU = true;
+ops.useGPU = false;
 
 % registration parameters
 ops.doRegistration = false;
