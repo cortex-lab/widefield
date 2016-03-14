@@ -4,7 +4,8 @@
 % As before, first set options variable "ops". 
 
 load ops.mat; % this must be present in the current directory
-diary(sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate));
+diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
+diary(diaryFilename);
 
 if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
@@ -86,6 +87,10 @@ for v = 1:length(ops.vids)
     results.vids(v).Sv = Sv;
     results.vids(v).totalVar = totalVar;
     
+    % what to do about this? Need to save all "vids" - where?
+    % fprintf(1, 'attempting to save to server\n')
+    % saveSVD(ops, U, V, dataSummary)
+    
 end
 
 %% save
@@ -93,10 +98,33 @@ end
 fprintf(1, 'saving locally\n');
 save(fullfile(ops.localSavePath, 'results.mat'), 'results', '-v7.3');
 
-if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
-    save(['email_to_' ops.emailAddress], 'v');
-end
 
-save(fullfile(ops.localSavePath, 'done.mat'), []);
+
 fprintf(1, 'done\n');
 diary off;
+
+if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
+    mail = 'lugaro.svd@gmail.com'; %Your GMail email address
+    password = 'xpr!mnt1'; %Your GMail password
+    
+    % Then this code will set up the preferences properly:
+    setpref('Internet','E_mail',mail);
+    setpref('Internet','SMTP_Server','smtp.gmail.com');
+    setpref('Internet','SMTP_Username',mail);
+    setpref('Internet','SMTP_Password',password);
+    props = java.lang.System.getProperties;
+    props.setProperty('mail.smtp.auth','true');
+    props.setProperty('mail.smtp.socketFactory.class', 'javax.net.ssl.SSLSocketFactory');
+    props.setProperty('mail.smtp.socketFactory.port','465');    
+                                                                                                                                                                         messages = {'I am the SVD master.', 'But I can''t help the fact that your data sucks.', 'Decomposing all day, decomposing all night.', 'You''re welcome.', 'Now you owe me a beer.'};    
+    % Send the email
+    sendmail(ops.emailAddress,[ops.mouseName '_' ops.thisDate ' finished.'], ...
+        messages{randi(numel(messages),1)}, diaryFilename);
+
+end
+
+% save(fullfile(ops.localSavePath, 'done.mat'), []);
+% Instead, copy the folder of raw files into the /mnt/data/toArchive folder
+destFolder = fullfile('/mnt/data/toArchive/', ops.mouseName, ops.thisDate);
+mkdir(destFolder);
+movefile(fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '*'), destFolder);

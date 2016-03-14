@@ -12,6 +12,11 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, e
 % different instances of the event to be fit with a scaled version of the
 % kernel. E.g. contrast of stimulus or velocity of wheel movement.
 % -- windows is a cell array of 2 by 1 windows, [startOffset endOffset]
+% -- lambda is a scalar, the regularization amount. 0 to do no
+% regularization
+% -- cvFold is 2 by 1, [foldSize, nToCalculate]. So [5 5] does 5-fold CV
+% and calculates the error on all five of the test sets. [5 1] still holds
+% out 20% but only does this once. 
 %
 % fit_kernels is a cell array of nS by nW fit kernels
 %
@@ -23,17 +28,20 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, e
 % "intercept" for the same event with values 1
 % - Some future version could also allow for fitting as a sum of basis
 % functions rather than this simplified "1's" method
-% - test pinv as well
-% - add cross-validation
 
 Fs = 1/mean(diff(t));
 nT = length(t);
+nSig = size(inSignal,1);
 
 if nargin<6
     lambda = 0; % if this is non-zero, does ridge regression
-    cvFold = 0; % number of folds of cross-validation to do
+    cvFold = [0 0]; % number of folds of cross-validation to do
 end
-cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
+
+% this is the function used to evaluate the cross validated error. Should
+% return nSig x 1, the performance on each signal to be predicted.
+% cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
+cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
 
 for w = 1:length(windows)
     startOffset(w) = round(windows{w}(1)*Fs);
@@ -69,12 +77,12 @@ for ev = 1:length(eventTimes)
     
 end
 
-if cvFold>0
+if cvFold(1)>0
     
-    cvp = cvpartition(nT,'KFold', cvFold);
-    cvErr = zeros(1,cvFold);
-    for k = 1:cvFold
-        fprintf(1, 'cvFold %d/%d\n', k, cvFold)
+    cvp = cvpartition(nT,'KFold', cvFold(1));
+    cvErr = zeros(nSig,cvFold(2));
+    for k = 1:cvFold(2)
+        fprintf(1, 'cvFold %d/%d\n', k, cvFold(2))
         if lambda>0
             % if using regularization, you want the regularization rows to
             % always be part of training
@@ -91,7 +99,7 @@ if cvFold>0
     
         predictedSignals = (A(testInds,:)*X);
         testSetObservations = inSignal(:,testInds)';
-        cvErr(k) = cvEvalFunc(predictedSignals, testSetObservations);
+        cvErr(:,k) = cvEvalFunc(predictedSignals, testSetObservations);
     end
     
 else
