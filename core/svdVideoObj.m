@@ -138,11 +138,11 @@ classdef svdVideoObj < handle
         function go(this)
             
             mkdir(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate));
-            if this.ops.nCams>1
-                for n = 1:this.ops.nCams
-                    mkdir(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', this.ops.camIDNums(n))));
-                end
+            
+            for n = 1:this.ops.nCams
+                mkdir(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', this.ops.camIDNums(n))));
             end
+            
             
             ops = this.ops;
             save(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, 'ops.mat'), 'ops');
