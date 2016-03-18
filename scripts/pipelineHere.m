@@ -32,7 +32,7 @@ for v = 1:length(ops.vids)
     ops.theseFiles = theseFiles;
     
     ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
-    
+        
     dataSummary = loadRawToDat(ops, v);
     
     fn = fieldnames(dataSummary);
@@ -65,7 +65,7 @@ end
 
 %% perform SVD
 for v = 1:length(ops.vids)
-    fprintf(ops.statusDestination, ['svd on ' ops.vids(v).name]);
+    fprintf(ops.statusDestination, ['svd on ' ops.vids(v).name '\n']);
     
     ops.Ly = results.vids(v).imageSize(1); ops.Lx = results.vids(v).imageSize(2); % not actually used in SVD function, just locally here
 
@@ -89,12 +89,7 @@ for v = 1:length(ops.vids)
     
     tic
     [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
-    toc
-    
-    results.vids(v).U = U;
-    results.vids(v).V = V;
-    results.vids(v).Sv = Sv;
-    results.vids(v).totalVar = totalVar;
+    toc   
     
     % what to do about this? Need to save all "vids" - where?
     fprintf(1, 'attempting to save to server\n')
@@ -102,11 +97,16 @@ for v = 1:length(ops.vids)
     ops.rigName = ops.vids(v).rigName;
     saveSVD(ops, U, V, results.vids(v))
     
+    results.vids(v).U = U;
+    results.vids(v).V = V;
+    results.vids(v).Sv = Sv;
+    results.vids(v).totalVar = totalVar;
+    
 end
 
 %% save
 
-fprintf(1, 'saving locally\n');
+fprintf(1, 'saving all locally\n');
 save(fullfile(ops.localSavePath, 'results.mat'), 'results', '-v7.3');
 
 
