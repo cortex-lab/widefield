@@ -120,4 +120,4 @@ else
 end
 
 function saveDSAsMat(dataSummary, Upath, ops)
-    save(fullfile(Upath, ['dataSummary_' ops.vids(ops.thisVid).name], 'dataSummary', 'ops');
+    save(fullfile(Upath, ['dataSummary_' ops.vids(ops.thisVid).name], 'dataSummary', 'ops'));
