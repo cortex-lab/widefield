@@ -32,7 +32,7 @@ else
     % first check if there are subdirectories here. If so we're going to
     % use all the images in them. If not we use the images that are in this
     % folder itself.
-    d = dir(ops.vids(vidNum).fileBase); 
+    d = dir(fullfile(ops.vids(vidNum).fileBase)); 
     if length(d)>2
         d = d(3:end); % first two are . and ..
         isdir = [d.isdir];
