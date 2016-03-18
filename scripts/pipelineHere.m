@@ -88,8 +88,9 @@ for v = 1:length(ops.vids)
     results.vids(v).totalVar = totalVar;
     
     % what to do about this? Need to save all "vids" - where?
-    % fprintf(1, 'attempting to save to server\n')
-    % saveSVD(ops, U, V, dataSummary)
+    fprintf(1, 'attempting to save to server\n')
+    ops.thisVid = v;
+    saveSVD(ops, U, V, results.vids(v))
     
 end
 

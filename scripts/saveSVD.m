@@ -100,24 +100,24 @@ end
 
 function saveU(U, Upath, ops)
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY(U, [], fullfile(Upath, 'SVD_Results_U'), []);
+    writeUVtoNPY(U, [], fullfile(Upath, ['SVD_Results_U' ops.vids(ops.thisVid).name]), []);
 else
     save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
 end
 
 function saveV(V, t, Vpath, ops)
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY([], V, [], [Vpath '_V']);
+    writeUVtoNPY([], V, [], [Vpath '_V' ops.vids(ops.thisVid).name]);
     if ~isempty(t)
-        writeNPY(t, [Vpath '_t.npy']);
+        writeNPY(t, [Vpath '_t' ops.vids(ops.thisVid).name '.npy']);
     end
 else
     if ~isempty(t)
-        save([Vpath '_V'], '-v7.3', 'V', 't');
+        save([Vpath '_V' ops.vids(ops.thisVid).name], '-v7.3', 'V', 't');
     else
-        save([Vpath '_V'], '-v7.3', 'V');
+        save([Vpath '_V' ops.vids(ops.thisVid).name], '-v7.3', 'V');
     end
 end
 
 function saveDSAsMat(dataSummary, Upath, ops)
-    save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
+    save(fullfile(Upath, ['dataSummary_' ops.vids(ops.thisVid).name], 'dataSummary', 'ops');
