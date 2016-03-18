@@ -22,9 +22,8 @@ if ~isfield(ops, 'saveAllToExp') || ~ops.saveAllToExp
         fprintf(ops.statusDestination, '  saving U... \n');
     end
     
-    saveU(U, Upath, ops);
-    saveDSAsMat(dataSummary, Upath, ops);    
-
+    saveU(U, Upath, ops);        
+    save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
 end
     
 if alignmentWorked
@@ -55,7 +54,8 @@ if alignmentWorked
         end
         
         saveDSAsMat(dataSummary, dsFilePath, ops)                
-
+        save([dsFilePath ops.vids(ops.thisVid).name], 'dataSummary', 'ops');
+        
         if isfield(ops, 'saveAllToExp') && ops.saveAllToExp
             if ops.verbose
                 fprintf(ops.statusDestination, '  saving U... \n');
@@ -120,4 +120,4 @@ else
 end
 
 function saveDSAsMat(dataSummary, Upath, ops)
-    save(fullfile(Upath, ['dataSummary_' ops.vids(ops.thisVid).name]), 'dataSummary', 'ops');
+    
