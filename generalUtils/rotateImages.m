@@ -3,8 +3,10 @@
 
 %% 
 
-baseImage = U(:,:,1);
-inputImage = U2(:,:,1);
+% baseImage = Ub(:,:,1);
+% inputImage = Ur(:,:,1);
+baseImage = mimgB;
+inputImage = mimgR;
 
 doFlipVert = true;
 
@@ -78,7 +80,9 @@ figure; imagesc(newInputImage)
 
 %% rotate everything
 
-newU = zeros(size(baseImage,1),size(baseImage,2),size(U2,3), 'like', U);
+U2 = Ur;
+
+newU = zeros(size(baseImage,1),size(baseImage,2),size(U2,3), 'like', U2);
 for uInd = 1:size(U2,3)
     msg = sprintf('%d... ', uInd);
     fprintf(1, msg);

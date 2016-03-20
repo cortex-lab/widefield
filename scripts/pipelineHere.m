@@ -95,12 +95,13 @@ for v = 1:length(ops.vids)
     fprintf(1, 'attempting to save to server\n')
     ops.thisVid = v;
     ops.rigName = ops.vids(v).rigName;
+    results.vids(v).Sv = Sv;
+    results.vids(v).totalVar = totalVar;
     saveSVD(ops, U, V, results.vids(v))
     
     results.vids(v).U = U;
     results.vids(v).V = V;
-    results.vids(v).Sv = Sv;
-    results.vids(v).totalVar = totalVar;
+    
     
 end
 
@@ -136,6 +137,6 @@ end
 
 % save(fullfile(ops.localSavePath, 'done.mat'), []);
 % Instead, copy the folder of raw files into the /mnt/data/toArchive folder
-destFolder = fullfile('/mnt/data/toArchive/', ops.mouseName, ops.thisDate);
+destFolder = fullfile('/mnt/data/toarchive/', ops.mouseName, ops.thisDate);
 mkdir(destFolder);
 movefile(fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '*'), destFolder);

@@ -23,7 +23,7 @@ if ~isfield(ops, 'saveAllToExp') || ~ops.saveAllToExp
     end
     
     saveU(U, Upath, ops);        
-    save(fullfile(Upath, 'dataSummary'), 'dataSummary', 'ops');
+    save(fullfile(Upath, ['dataSummary' ops.vids(ops.thisVid).name]), 'dataSummary', 'ops');
 end
     
 if alignmentWorked
