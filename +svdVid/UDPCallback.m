@@ -12,16 +12,17 @@ dataReceivedStr = char(dataReceived');
 % [instr, animal, iseries, iexp, irepeat, istim, dur] = textscan( dataReceived, '%s %s %d %d %d %d %d' )
 expDat = dat.mpepMessageParse(dataReceivedStr);
 
-fprintf(1, 'SVD video object received ''%s'' from %s:%d\n', dataReceivedStr, ip, port);
+
 
 
 
 switch expDat.instruction
     case 'hello'
+        fprintf(1, 'SVD video object received ''%s'' from %s:%d\n', dataReceivedStr, ip, port);
         fprintf(1, 'attempting to echo\n')
         fwrite(myUDP, dataReceived); % echo for like, no reason
     case 'ExpStart'    
-        
+        fprintf(1, 'SVD video object received ''%s'' from %s:%d\n', dataReceivedStr, ip, port);
         fprintf(1, 'attempting to echo\n')
         fwrite(myUDP, dataReceived); % echo after completing required actions
         
@@ -33,7 +34,7 @@ switch expDat.instruction
         end
         
     otherwise
-        fprintf('Unknown instruction : %s, echoing anyway\n', expDat.instruction);
+        %fprintf('Unknown instruction : %s, echoing anyway\n', expDat.instruction);
         fwrite(myUDP, dataReceived);    
 end
 
