@@ -7,4 +7,5 @@ function newV = ChangeU(U, V, newU)
 [ySize, xSize, nSVD] = size(U);
 Uflat = reshape(U, [ySize*xSize, nSVD]);
 newUflat = reshape(newU, [ySize*xSize, nSVD]);
-newV = Uflat'*newUflat*V;
+% newV = Uflat'*newUflat*V;
+newV = newUflat'*Uflat*V;

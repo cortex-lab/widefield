@@ -152,7 +152,7 @@ switch keydata.Key
         updateType = 'cond';
     case 'i'
         ud.thisPixel(1) = ud.thisPixel(1)+5;
-        if ud.thisPixel(1)>ud.yPix; ud.thisPixel(1) = ud.yPix; end
+        if ud.thisPixel(1)>ud.Ypix; ud.thisPixel(1) = ud.Ypix; end
         updateType = 'pixel';
     case 'k'
         ud.thisPixel(1) = ud.thisPixel(1)-5;
@@ -164,7 +164,7 @@ switch keydata.Key
         updateType = 'pixel';
     case 'l'
         ud.thisPixel(2) = ud.thisPixel(2)+5;
-        if ud.thisPixel(2)>ud.xPix; ud.thisPixel(2) = ud.xPix; end
+        if ud.thisPixel(2)>ud.Xpix; ud.thisPixel(2) = ud.Xpix; end
         updateType = 'pixel';
     case 'hyphen' % scale cax down
         ud.cax = ud.cax*0.75;
