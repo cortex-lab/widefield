@@ -20,14 +20,11 @@ function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
 %   - 'c' to clear the plotted points, leaving only the last one
 % - '-' and '=' change the caxis, scaling up and down. It will stay
 % centered around zero though. 
+% - 'b' jumps backwards
 %
 % NOTE! The caxis is set like it's a DF/F movie. If you want a DF/F movie, 
-% divide U by the mean image before passing it in, like this:
-% >> U = bsxfun(@rdivide, U, meanImage);
+% use dffFromSVD
 
-% TODO
-%
-% - Add trace labels
 
 
 allData.U = U;
