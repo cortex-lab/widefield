@@ -3,6 +3,8 @@
 function [frameNums, timestampsAsDatenum] = timeFromPCOBinaryMulti(records)
 % records is 14xN for N frames
 
+records = double(records);
+
 nfr = size(records,2);
 
 dic = zeros(14,nfr,2);

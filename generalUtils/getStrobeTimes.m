@@ -6,6 +6,9 @@ switch rigName
     case 'bigrig'
         strobeName = 'cam2';
         strobeThresh = 2;
+    case 'bigrig2'
+        strobeName = 'cam2';
+        strobeThresh = 2;    
     case 'bigrig1'
         strobeName = 'cam1';
         strobeThresh = 2;

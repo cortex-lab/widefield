@@ -185,7 +185,7 @@ if ud.playing
     end    
     
     currTime = allData.t(ud.currentFrame);
-    set(get(ud.ImageAxisHandle(1), 'Title'), 'String', sprintf('time %.2f, rate %d', currTime, ud.rate));              
+    set(get(ud.ImageAxisHandle(1), 'Title'), 'String', sprintf('time %.2f, rate %d, pix (%d, %d)', currTime, ud.rate, ud.pixel(1), ud.pixel(2)));              
     
     nSP = length(allData.traces)+1;
     for n = 1:nSP

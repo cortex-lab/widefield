@@ -1,7 +1,7 @@
 
 
-function [fitKernels, predictedSignals] = kernelRegression(inSignal, t, eventTimes, eventValues, windows)
-% function [fitKernels, predictedSignals] = kernelRegression(inSignal, t, eventTimes, eventValues, windows)
+function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, eventTimes, eventValues, windows, lambda, cvFold)
+% function [fitKernels, predictedSignals] = kernelRegression(inSignal, t, eventTimes, eventValues, windows, lambda, cvFold)
 %
 % Fits the "toeplitz regression" from Kenneth. 
 %
@@ -12,6 +12,11 @@ function [fitKernels, predictedSignals] = kernelRegression(inSignal, t, eventTim
 % different instances of the event to be fit with a scaled version of the
 % kernel. E.g. contrast of stimulus or velocity of wheel movement.
 % -- windows is a cell array of 2 by 1 windows, [startOffset endOffset]
+% -- lambda is a scalar, the regularization amount. 0 to do no
+% regularization
+% -- cvFold is 2 by 1, [foldSize, nToCalculate]. So [5 5] does 5-fold CV
+% and calculates the error on all five of the test sets. [5 1] still holds
+% out 20% but only does this once. 
 %
 % fit_kernels is a cell array of nS by nW fit kernels
 %
@@ -19,20 +24,24 @@ function [fitKernels, predictedSignals] = kernelRegression(inSignal, t, eventTim
 % input signal, but this one doesn't. 
 %
 % TODO: 
-% - implement ridge regression with added data at the end
 % - for cases in which the events have values, should also fit an
 % "intercept" for the same event with values 1
 % - Some future version could also allow for fitting as a sum of basis
 % functions rather than this simplified "1's" method
-% - test pinv as well
-% - add cross-validation
 
 Fs = 1/mean(diff(t));
 nT = length(t);
+nSig = size(inSignal,1);
 
-lambda = 0.1; % if this is non-zero, does ridge regression
-cvFold = 10; % number of folds of cross-validation to do
-cvEvalFunc = @(pred, actual)var(pred-actual);
+if nargin<6
+    lambda = 0; % if this is non-zero, does ridge regression
+    cvFold = [0 0]; % number of folds of cross-validation to do
+end
+
+% this is the function used to evaluate the cross validated error. Should
+% return nSig x 1, the performance on each signal to be predicted.
+% cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
+cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
 
 for w = 1:length(windows)
     startOffset(w) = round(windows{w}(1)*Fs);
@@ -63,21 +72,21 @@ for ev = 1:length(eventTimes)
     
     if lambda>0
         inSignal(:,end+1:end+nWinSamps(ev)) = 0;
-        A(end+1:end+nWinSamps(ev),csWins(ev)+1:nWinSamps(ev)) = diag(lambda*ones(1,nWinSamps(ev)));
+        A(end+1:end+nWinSamps(ev),csWins(ev)+1:csWins(ev)+nWinSamps(ev)) = diag(lambda*ones(1,nWinSamps(ev)));
     end
     
 end
 
-if cvFold>0
+if cvFold(1)>0
     
-    cvp = cvpartition(nT,'KFold', cvFold);
-    
-    for k = 1:cvFold
-        
+    cvp = cvpartition(nT,'KFold', cvFold(1));
+    cvErr = zeros(nSig,cvFold(2));
+    for k = 1:cvFold(2)
+        fprintf(1, 'cvFold %d/%d\n', k, cvFold(2))
         if lambda>0
             % if using regularization, you want the regularization rows to
             % always be part of training
-            trainInds = [cvp.training(k) true(1, size(inSignal,2)-nT)];
+            trainInds = vertcat(cvp.training(k), true(size(inSignal,2)-nT,1));
         else
             trainInds = cvp.training(k);
         end
@@ -86,15 +95,15 @@ if cvFold>0
         
         trainSetObservations = inSignal(:,trainInds);
         trainSetPredictors = A(trainInds,:);
-        X = trainSetPredictors\trainSet'; % X becomes nWinSampsTotal by nS 
+        X = solveLinEq(trainSetPredictors,trainSetObservations'); % X becomes nWinSampsTotal by nS 
     
-        predictedSignals = (A(testInds,:)*X)';
-        
-        cvErr(k) = cvEvalFunc(predictedSignals, inSignal(:,testInds)');
+        predictedSignals = (A(testInds,:)*X);
+        testSetObservations = inSignal(:,testInds)';
+        cvErr(:,k) = cvEvalFunc(predictedSignals, testSetObservations);
     end
     
 else
-    X = A\inSignal'; % X becomes nWinSampsTotal by nS
+    X = solveLinEq(A,inSignal'); % X becomes nWinSampsTotal by nS
     cvErr = [];
 end
 
@@ -105,7 +114,17 @@ end
 predictedSignals = [];
 if nargout>1
     % return the predicted signal, given the kernels
-    predictedSignals = (A*X)';
+    predictedSignals = (A(1:nT,:)*X)';
 end
 
+
+function X = solveLinEq(A, B)
+% This is just mldivide, but it turns out to be faster, empirically, to
+% make the variables gpuArrays and use pinv instead. 
+
+gA = gpuArray(single(A));
+gB = gpuArray(single(B));
+X = gather(pinv(gA)*gB);
+
+% X = A\B;
 
