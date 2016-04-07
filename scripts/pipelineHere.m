@@ -55,19 +55,32 @@ for v = 1:length(ops.vids)
 end
 
 %% do image registration? 
-% Register the blue image and apply the registration to the other movies
+% Register a master image and apply the registration to the other movies
 if ops.doRegistration
-    % if you want to do registration, we need to first determine the
-    % target image.
-    tic
-    if ops.verbose
-        fprintf(1, 'determining target image\n');
+
+    regOps.NimgFirstRegistration = ops.NimgFirstRegistration;
+    regOps.NiterPrealign = ops.NiterPrealign;
+    regOps.SubPixel = ops.SubPixel;
+    regOps.RegPrecision = ops.RegPrecision;
+    regOps.phaseCorrelation = ops.phaseCorrelation;
+    regOps.nRegisterBatchLimit = ops.nRegisterBatchLimit;
+    
+    v = ops.masterVid;
+    datPath = ops.vids(v).thisDatPath;
+    
+    % determine target frame for the master video
+    targetFrame = determineTargetFrame(datPath, imageSize, nFr, regOps);
+    
+    % figure out the shifts required to align to it
+    ds = alignToTarget(datPath, targetFrame, imageSize, nFr, regOps);
+    
+    % now shift every video to match
+    for v = 1:length(ops.vids)
+        datPath = ops.vids(v).thisDatPath;
+        regPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'reg.dat']);
+        registerDatFile(datPath, regPath, ds, results(v).imageSize, results(v).nFrames, regOps);
     end
-    [targetFrame, nFr] = generateRegistrationTarget(ops.fileBase, ops);
-    ops.Nframes = nFr;
-    toc
-else
-    targetFrame = [];
+    
 end
 
 %% do hemodynamic correction?

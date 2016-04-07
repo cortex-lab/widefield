@@ -83,7 +83,7 @@ classdef svdVideoObj < handle
                     
                     for c = 1:nColors
                         thisName = input(sprintf('    Name of color %d? [cam%dcolor%d] ', c, camIDNum, c), 's');
-                        if isempty(thisName); thisName = sprintf('cam%dcolor%d', camIDNum, c); end
+                        if isempty(thisName); thisName = sprintf('cam%dcolor%d', camIDNum, c); end                        
                         
                         this.ops.vids(vidNum).name = thisName;
                         this.ops.vids(vidNum).fileBase = fullfile('/mnt/data/svdinput/', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', camIDNum));
@@ -109,6 +109,15 @@ classdef svdVideoObj < handle
                 end                                
                 
             end
+            
+            fprintf(1, 'You entered videos: \n');
+            for v = 1:numel(this.ops.vids)-1
+                fprintf(1, '%d: %s\n', v, this.ops.vids(v).name);
+            end
+            
+            masterVid = input('For registration, which is the master? [1] ');
+            if isempty(masterVid); masterVid = 1; end
+            this.ops.masterVid = masterVid;
             
             objectiveType = input('Camera objective? [1] ', 's');
             if isempty(objectiveType); objectiveType = 1; end
