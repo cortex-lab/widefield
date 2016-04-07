@@ -1,17 +1,12 @@
 
 
-function stack = loadTiffStack(tiffFilename, mode, varargin)
-%function stack = loadTiffStack(tiffFilename, mode[, statusDestination])
+function stack = loadTiffStack(tiffFilename, mode, verbose)
+%function stack = loadTiffStack(tiffFilename, mode, verbose)
 % mode = 'tiffobj'; % options are 'imread', 'tiffobj'
 % tiffobj is faster for USB-attached hard drive. 
 % imread is faster for local hard drive (I think!)
 % use speedcomp.m to compare
 
-if ~isempty(varargin)
-    statusDestination = varargin{1};
-else
-    statusDestination = 1;
-end
 
 InfoImage=imfinfo(tiffFilename);
 nImagesThisFile=length(InfoImage);
@@ -25,8 +20,8 @@ end
 stack = zeros(InfoImage(1).Height, InfoImage(1).Width, nImagesThisFile, 'uint16');
 
 for i=1:nImagesThisFile
-    if ~isempty(statusDestination) && mod(i,100)==0
-        fprintf(statusDestination, '  image %d\n', i);
+    if verbose && mod(i,100)==0
+        fprintf(1, '  image %d\n', i);
     end
     
     switch mode

@@ -1,11 +1,11 @@
 
 
-function dataSummary = loadRawToDat(ops, vidNum)
+function dataSummary = loadRawToDat(ops)
 % converts a set of tif files in a directory (specified by ops.fileBase) to a
 % flat binary (dat) file in datPath. While doing so,
 
-theseFiles = ops.vids(vidNum).theseFiles;
-datPath = ops.vids(vidNum).thisDatPath;
+theseFiles = ops.theseFiles;
+datPath = ops.thisDatPath;
 
 frameNumbers = [];
 timeStamps = [];
@@ -19,18 +19,13 @@ try
         thisFile = theseFiles{fileInd};
         
         if ops.verbose
-            fprintf(ops.statusDestination, 'loading file: %s (%d of %d)\n', thisFile, fileInd, length(theseFiles));
+            fprintf(1, 'loading file: %s (%d of %d)\n', thisFile, fileInd, length(theseFiles));
         end
         
         clear imstack
         switch ops.rawDataType
             case 'tif'
-                if ops.verbose
-                    statusDest = ops.statusDestination;
-                else
-                    statusDest = [];
-                end
-                imstack = loadTiffStack(thisFile, 'tiffobj', statusDest);
+                imstack = loadTiffStack(thisFile, 'tiffobj', ops.verbose);
             case 'customPCO'
                 [~,~,~,imstack] = LoadCustomPCO(thisFile, false, true);
         end
@@ -39,7 +34,7 @@ try
         
         if ops.hasBinaryStamp
             if ops.verbose
-                fprintf(ops.statusDestination, '  computing timestamps\n');
+                fprintf(1, '  computing timestamps\n');
             end
             
             switch ops.rawDataType
@@ -50,7 +45,7 @@ try
                         firstTS=thisTS(1);
                     end
                     
-                    inclFrames = mod(thisFN, ops.vids(vidNum).frameMod(1))==ops.vids(vidNum).frameMod(2);
+                    inclFrames = mod(thisFN, ops.frameMod(1))==ops.frameMod(2);
                     
                     nfr = sum(inclFrames);
                     
@@ -59,7 +54,7 @@ try
                     
                     if ops.vids(vidNum).frameMod(1)>1
                         if ops.verbose
-                            fprintf(ops.statusDestination, '  selecting correct frames\n');
+                            fprintf(1, '  selecting correct frames\n');
                         end
                         imstack = imstack(:,:,inclFrames);
                     end
@@ -78,7 +73,7 @@ try
         
         if ops.binning>1
             if ops.verbose
-                fprintf(ops.statusDestination, '  binning image\n');
+                fprintf(1, '  binning image\n');
             end
             imstack = binImage(imstack, ops.binning);            
         end                
@@ -90,18 +85,18 @@ try
         end
         
         if ops.verbose
-            fprintf(ops.statusDestination, '  computing image means\n');
+            fprintf(1, '  computing image means\n');
         end
         imageMeans(frameIndex+1:frameIndex+nfr) = squeeze(mean(mean(imstack,1),2));
                                 
         
         if ops.verbose
-            fprintf(ops.statusDestination, '  computing mean image\n');
+            fprintf(1, '  computing mean image\n');
         end
         sumImage = sumImage+sum(double(imstack),3);
         
         if ops.verbose
-            fprintf(ops.statusDestination, '  saving to dat\n');
+            fprintf(1, '  saving to dat\n');
         end
                 
         fwrite(fid, imstack, class(imstack));
@@ -130,5 +125,5 @@ dataSummary.dataType = class(imstack);
 dataSummary.nFrames = nFrames;
 
 if ops.verbose
-    fprintf(ops.statusDestination, '  done\n');
+    fprintf(1, '  done\n');
 end

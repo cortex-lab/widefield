@@ -70,6 +70,9 @@ classdef svdVideoObj < handle
                 exposureDur = input('  What is the exposure duration of this camera? [19] ');
                 if isempty(exposureDur); exposureDur = 19; end
                 
+                exposureDur = input('  Flip up/down? [0] ');
+                if isempty(flipudVid); flipudVid = 0; end
+                
                 nColors = input('  How many colors on this camera? [1] ');
                 if isempty(nColors); nColors = 1; end
                 
@@ -88,6 +91,7 @@ classdef svdVideoObj < handle
                         this.ops.vids(vidNum).rigName = sprintf('bigrig%d', camIDNum);
                         this.ops.vids(vidNum).Fs = Fs/nColors;
                         this.ops.vids(vidNum).exposureDur = exposureDur;
+                        this.ops.vids(vidNum).flipudVid = flipudVid;
                         vidNum = vidNum+1;
                     end
                     
@@ -99,6 +103,7 @@ classdef svdVideoObj < handle
                     this.ops.vids(vidNum).rigName = sprintf('bigrig%d', camIDNum);
                     this.ops.vids(vidNum).Fs = Fs;
                     this.ops.vids(vidNum).exposureDur = exposureDur;
+                    this.ops.vids(vidNum).flipudVid = flipudVid;
                     vidNum = vidNum+1;
                     
                 end                                

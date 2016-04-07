@@ -25,15 +25,24 @@ save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
 
 for v = 1:length(ops.vids)
     
+    clear loadDatOps;
+    
     ops.theseFiles = [];
     theseFiles = generateFileList(ops, v);
     
     ops.vids(v).theseFiles = theseFiles;
-    ops.theseFiles = theseFiles;
-    
-    ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
+    loadDatOps.theseFiles = theseFiles;
         
-    dataSummary = loadRawToDat(ops, v);
+    ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
+    loadDatOps.datPath = ops.vids(v).thisDatPath;    
+    loadDatOps.verbose = ops.verbose;
+    
+    loadDatOps.frameMod = ops.vids(v).frameMod;
+    loadDatOps.hasASCIIstamp = ops.hasASCIIstamp;
+    loadDatOps.hasBinaryStamp = ops.hasBinaryStamp;
+    loadDatOps.binning = ops.binning;
+    
+    dataSummary = loadRawToDat(loadDatOps);
     
     fn = fieldnames(dataSummary);
     for f = 1:length(fn)
