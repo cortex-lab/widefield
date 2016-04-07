@@ -18,7 +18,7 @@ classdef svdVideoObj < handle
             if nargin>0
                 s = svdVideoObj;
                 
-                s.ops = setSVDParams(); % defaults
+                %s.ops = setSVDParams(); % defaults
                 s.ops.mouseName = 'unknownMouse';
                 s.ops.thisDate = 'unknownDate';
             end
@@ -138,6 +138,9 @@ classdef svdVideoObj < handle
                 otherwise
                     this.ops.emailAddress = [];
             end
+            
+            this.ops = svdConfig(this.ops, userName); % apply defaults to unspecified fields
+            
         end
         
         function go(this)

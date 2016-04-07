@@ -45,8 +45,9 @@ for v = 1:length(ops.vids)
     dataSummary = loadRawToDat(loadDatOps);
     
     fn = fieldnames(dataSummary);
+    results(v).name = ops.vids(v).name;
     for f = 1:length(fn)
-        results.vids(v).(fn{f}) = dataSummary.(fn{f});
+        results(v).(fn{f}) = dataSummary.(fn{f});
     end
     
     save(fullfile(ops.localSavePath, 'results.mat'), 'results');
@@ -59,7 +60,7 @@ if ops.doRegistration
     % target image.
     tic
     if ops.verbose
-        fprintf(ops.statusDestination, 'determining target image\n');
+        fprintf(1, 'determining target image\n');
     end
     [targetFrame, nFr] = generateRegistrationTarget(ops.fileBase, ops);
     ops.Nframes = nFr;
@@ -69,35 +70,38 @@ else
 end
 
 %% do hemodynamic correction?
-
+% - don't do this here - it likely works just as well on SVD representation
+% (though that has not been explicitly tested). 
 
 
 %% perform SVD
 for v = 1:length(ops.vids)
-    fprintf(ops.statusDestination, ['svd on ' ops.vids(v).name '\n']);
+    fprintf(1, ['svd on ' ops.vids(v).name '\n']);
     
-    ops.Ly = results.vids(v).imageSize(1); ops.Lx = results.vids(v).imageSize(2); % not actually used in SVD function, just locally here
+    svdOps.Ly = results(v).imageSize(1); svdOps.Lx = results(v).imageSize(2); % not actually used in SVD function, just locally here
 
     if ops.doRegistration
         minDs = min(dataSummary.regDs, [], 1);
         maxDs = max(dataSummary.regDs, [], 1);
 
-        ops.yrange = ceil(maxDs(1)):floor(ops.Ly+minDs(1));
-        ops.xrange = ceil(maxDs(2)):floor(ops.Lx+minDs(2));    
+        svdOps.yrange = ceil(maxDs(1)):floor(svdOps.Ly+minDs(1));
+        svdOps.xrange = ceil(maxDs(2)):floor(svdOps.Lx+minDs(2));    
+        
+        svdOps.RegFile = ops.vids(v).thisRegPath;
     else
-        ops.yrange = 1:ops.Ly; % subselection/ROI of image to use
-        ops.xrange = 1:ops.Lx;
+        svdOps.yrange = 1:svdOps.Ly; % subselection/ROI of image to use
+        svdOps.xrange = 1:svdOps.Lx;
+        svdOps.RegFile = ops.vids(v).thisDatPath;
     end
-    ops.Nframes = numel(results.vids(v).timeStamps); % number of frames in whole movie
+    svdOps.Nframes = numel(results(v).timeStamps); % number of frames in whole movie
 
-    ops.mimg = results.vids(v).meanImage;
+    svdOps.mimg = results(v).meanImage;
 
-    ops.ResultsSaveFilename = [];
-    ops.theseFiles = ops.vids(v).theseFiles;
-    ops.RegFile = ops.vids(v).thisDatPath;
+    svdOps.ResultsSaveFilename = [];
+    svdOps.theseFiles = ops.vids(v).theseFiles;    
     
     tic
-    [ops, U, Sv, V, totalVar] = get_svdcomps(ops);
+    [ops, U, Sv, V, totalVar] = get_svdcomps(svdOps);
     toc   
     
     % what to do about this? Need to save all "vids" - where?
