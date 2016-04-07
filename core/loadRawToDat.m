@@ -52,11 +52,15 @@ try
                     frameNumbers(frameIndex+1:frameIndex+nfr) = thisFN(inclFrames);
                     timeStamps(frameIndex+1:frameIndex+nfr) = thisTS(inclFrames)-firstTS;
                     
-                    if ops.vids(vidNum).frameMod(1)>1
+                    if ops.frameMod(1)>1
                         if ops.verbose
                             fprintf(1, '  selecting correct frames\n');
                         end
-                        imstack = imstack(:,:,inclFrames);
+                        if ops.flipudVid
+                            imstack = imstack(end:-1:1,:,inclFrames);
+                        else
+                            imstack = imstack(:,:,inclFrames);
+                        end
                     end
                     
                 case 'customPCO'

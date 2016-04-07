@@ -41,6 +41,7 @@ for v = 1:length(ops.vids)
     loadDatOps.hasASCIIstamp = ops.hasASCIIstamp;
     loadDatOps.hasBinaryStamp = ops.hasBinaryStamp;
     loadDatOps.binning = ops.binning;
+    loadDatOps.flipudVid = ops.vids(v).flipudVid;
     
     dataSummary = loadRawToDat(loadDatOps);
     
