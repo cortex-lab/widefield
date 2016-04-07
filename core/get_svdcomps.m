@@ -1,5 +1,5 @@
-function [ops, U, Sv, V, totalVar] = get_svdcomps(ops)
-% function [ops, U, Sv, V] = get_svdcomps(ops)
+function [U, Sv, V, totalVar] = get_svdcomps(ops)
+% function [U, Sv, V, totalVar] = get_svdcomps(ops)
 % Computes SVD of data that's too large to compute directly by using
 % "frames" that are averages of several true frames for estimating the
 % covariance matrix. Assumes data are 3D (Y x X x Frames), in a file of the
@@ -11,9 +11,7 @@ function [ops, U, Sv, V, totalVar] = get_svdcomps(ops)
 % ops.RegFile % raw data file. Format is flat binary, int16 data type,
 % nPixels by nFrames
 %
-% ops.Ly, ops.Lx % y and x size of each frame 
-% OR 
-% ops.mimg % mean image (?), size Ly x Lx
+% ops.mimg % mean image, size Ly x Lx
 %
 % ops.Nframes  % number of frames in whole movie
 %
@@ -28,38 +26,22 @@ function [ops, U, Sv, V, totalVar] = get_svdcomps(ops)
 % ops.yrange % subselection/ROI of image to use
 % ops.xrange 
 %
-% ops.ResultsSaveFilename % if this is provided, it is used exactly
-%
 % ops.verbose % whether to output updates about progress
 
 
-if isfield(ops, 'mimg')
-    [Ly, Lx] = size(ops.mimg);
-else
-    Lx = ops.Lx;
-    Ly = ops.Ly;
-end
+[Ly, Lx] = size(ops.mimg);
 
 if ~isfield(ops, 'verbose')
     ops.verbose = false;
 end
 
-if ~isfield(ops, 'hasASCIIstamp')
-    ops.hasASCIIstamp = false;
-end
-if ~isfield(ops, 'hasBinaryStamp')
-    ops.hasBinaryStamp = false;
-end
-
-theseFiles = generateFileList(ops);
 
 switch ops.rawDataType    
     case 'tif'                
-        firstFrame = imread(theseFiles{1}, 1);
+        firstFrame = imread(ops.theseFiles{1}, 1);
     case 'customPCO'
-        firstFrame = readOneCustomPCO(theseFiles{1}, 1);
+        firstFrame = readOneCustomPCO(ops.theseFiles{1}, 1);
     case 'StackSet'
-        
         firstFrame = [];% 
 end
 rawDType = class(firstFrame);
@@ -77,14 +59,14 @@ ix = 0;
 mov = zeros(Ly, Lx, ops.NavgFramesSVD, 'single');
 
 if ops.verbose
-    fprintf(ops.statusDestination, 'loading data\n');
+    fprintf(1, 'loading data\n');
 end
 
 try 
     fid = fopen(ops.RegFile, 'r');
     while 1
         if ops.verbose
-            fprintf(ops.statusDestination, '   frame %d out of %d\n', ix*nt0, ops.Nframes);
+            fprintf(1, '   frame %d out of %d\n', ix*nt0, ops.Nframes);
         end
         
         data = fread(fid,  Ly*Lx*nimgbatch, ['*' rawDType]);
@@ -120,7 +102,7 @@ mov = mov(ops.yrange, ops.xrange, :);
 
 
 if ops.verbose
-    fprintf(ops.statusDestination, 'computing SVD\n');
+    fprintf(1, 'computing SVD\n');
 end
 
 ops.nSVD = min(ops.nSVD, size(mov,3));
@@ -164,13 +146,13 @@ try
     Fs = zeros(ops.nSVD, sum(ops.Nframes), 'single');
     
     if ops.verbose
-        fprintf(ops.statusDestination, 'applying SVD to data\n');
+        fprintf(1, 'applying SVD to data\n');
     end
     
     while 1
         
         if ops.verbose
-            fprintf(ops.statusDestination, '   frame %d out of %d\n', ix, ops.Nframes);
+            fprintf(1, '   frame %d out of %d\n', ix, ops.Nframes);
         end
         
         data = fread(fid,  Ly*Lx*nimgbatch, ['*' rawDType]);
@@ -201,11 +183,6 @@ V = Fs; clear Fs
 
 U = reshape(U, numel(ops.yrange), numel(ops.xrange), []);
 
-if isfield(ops, 'ResultsSaveFilename') && ~isempty(ops.ResultsSaveFilename)
-    outputFilename = ops.ResultsSaveFilename;
-    save(outputFilename, '-v7.3', 'U', 'Sv', 'V', 'ops', 'totalVar');
-end
-
 if ops.verbose
-    fprintf(ops.statusDestination, 'done.\n');
+    fprintf(1, 'done.\n');
 end

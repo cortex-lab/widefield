@@ -76,6 +76,12 @@ end
 
 
 %% perform SVD
+
+svdOps.NavgFramesSVD = ops.NavgFramesSVD;
+svdOps.verbose = ops.verbose;
+svdOps.nSVD = ops.nSVD;
+svdOps.useGPU = ops.useGPU;
+
 for v = 1:length(ops.vids)
     fprintf(1, ['svd on ' ops.vids(v).name '\n']);
     
@@ -97,8 +103,7 @@ for v = 1:length(ops.vids)
     svdOps.Nframes = numel(results(v).timeStamps); % number of frames in whole movie
 
     svdOps.mimg = results(v).meanImage;
-
-    svdOps.ResultsSaveFilename = [];
+    
     svdOps.theseFiles = ops.vids(v).theseFiles;    
     
     tic
@@ -106,12 +111,12 @@ for v = 1:length(ops.vids)
     toc   
     
     % what to do about this? Need to save all "vids" - where?
-    fprintf(1, 'attempting to save to server\n')
+    fprintf(1, 'attempting to save to server\n');
     ops.thisVid = v;
     ops.rigName = ops.vids(v).rigName;
-    results.vids(v).Sv = Sv;
-    results.vids(v).totalVar = totalVar;
-    saveSVD(ops, U, V, results.vids(v))
+    results(v).Sv = Sv;
+    results(v).totalVar = totalVar;
+    saveSVD(ops, U, V, results(v))
     
     results.vids(v).U = U;
     results.vids(v).V = V;
