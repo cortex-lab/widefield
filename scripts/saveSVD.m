@@ -5,7 +5,7 @@ function saveSVD(ops, U, V, dataSummary)
 [numExps, nFrPerExp, allT, existExps, alignmentWorked] = determineTimelineAlignments(ops, size(V,2));
 
 if ops.verbose
-    fprintf(ops.statusDestination, 'saving SVD results to server... \n');
+    fprintf(1, 'saving SVD results to server... \n');
 end
 
 % upload results to server
@@ -19,11 +19,11 @@ end
 if ~isfield(ops, 'saveAllToExp') || ~ops.saveAllToExp
 
     if ops.verbose
-        fprintf(ops.statusDestination, '  saving U... \n');
+        fprintf(1, '  saving U... \n');
     end
     
     saveU(U, Upath, ops);        
-    save(fullfile(Upath, ['dataSummary' ops.vids(ops.thisVid).name]), 'dataSummary', 'ops');
+    save(fullfile(Upath, ['dataSummary' ops.vidName]), 'dataSummary', 'ops');
 end
     
 if alignmentWorked
@@ -34,7 +34,7 @@ if alignmentWorked
 
     for n = 1:numExps
         if ops.verbose
-            fprintf(ops.statusDestination, '  saving V for exp %d... \n', existExps(n));
+            fprintf(1, '  saving V for exp %d... \n', existExps(n));
         end
         filePath = dat.expPath(ops.mouseName, ops.thisDate, existExps(n), 'widefield', 'master');
         mkdir(filePath);
@@ -54,11 +54,11 @@ if alignmentWorked
         end
         
         saveDSAsMat(dataSummary, dsFilePath, ops)                
-        save([dsFilePath ops.vids(ops.thisVid).name], 'dataSummary', 'ops');
+        save([dsFilePath ops.vidName], 'dataSummary', 'ops');
         
         if isfield(ops, 'saveAllToExp') && ops.saveAllToExp
             if ops.verbose
-                fprintf(ops.statusDestination, '  saving U... \n');
+                fprintf(1, '  saving U... \n');
             end
             thisUpath = dat.expFilePath(ops.mouseName, ops.thisDate, existExps(n), 'calcium-widefield-svd', 'master');
             saveU(U, thisUpath(1:end-3), ops);
@@ -67,7 +67,7 @@ if alignmentWorked
     end
 else % alignment didn't work, just save it like U, in the root directory
     if ops.verbose
-        fprintf(ops.statusDestination, '  saving V... \n');
+        fprintf(1, '  saving V... \n');
     end
     
     if isfield(ops, 'inclExpList') && numel(ops.inclExpList)==1
@@ -85,7 +85,7 @@ else % alignment didn't work, just save it like U, in the root directory
         % the subdirectory. But the alignment didn't work so we're skipping
         % that idea. 
         if ops.verbose
-            fprintf(ops.statusDestination, '  saving U... \n');
+            fprintf(1, '  saving U... \n');
         end
         saveU(U, Upath, ops);
     end
@@ -94,7 +94,7 @@ end
 % Register results files with database here??
 
 if ops.verbose
-    fprintf(ops.statusDestination,'done saving\n');
+    fprintf(1,'done saving\n');
 end
 
 
@@ -107,17 +107,14 @@ end
 
 function saveV(V, t, Vpath, ops)
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY([], V, [], [Vpath '_V' ops.vids(ops.thisVid).name]);
+    writeUVtoNPY([], V, [], [Vpath '_V' ops.vidName]);
     if ~isempty(t)
-        writeNPY(t, [Vpath '_t' ops.vids(ops.thisVid).name '.npy']);
+        writeNPY(t, [Vpath '_t' ops.vidName '.npy']);
     end
 else
     if ~isempty(t)
-        save([Vpath '_V' ops.vids(ops.thisVid).name], '-v7.3', 'V', 't');
+        save([Vpath '_V' ops.vidName], '-v7.3', 'V', 't');
     else
-        save([Vpath '_V' ops.vids(ops.thisVid).name], '-v7.3', 'V');
+        save([Vpath '_V' ops.vidName], '-v7.3', 'V');
     end
 end
-
-function saveDSAsMat(dataSummary, Upath, ops)
-    

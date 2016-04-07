@@ -112,15 +112,21 @@ for v = 1:length(ops.vids)
     
     % what to do about this? Need to save all "vids" - where?
     fprintf(1, 'attempting to save to server\n');
-    ops.thisVid = v;
-    ops.rigName = ops.vids(v).rigName;
+    
+    saveOps.rigName = ops.vids(v).rigName;
+    saveOps.verbose = ops.verbose;
+    saveOps.mouseName = ops.mouseName;
+    saveOps.thisDate = ops.thisDate;
+    saveOps.vidName = ops.vids(v).name;
+    saveOps.saveAsNPY = ops.saveAsNPY;
+    saveOps.frameMod = ops.vids(v).frameMod;
+    
     results(v).Sv = Sv;
     results(v).totalVar = totalVar;
-    saveSVD(ops, U, V, results(v))
+    saveSVD(saveOps, U, V, results(v))
     
-    results.vids(v).U = U;
-    results.vids(v).V = V;
-    
+    results(v).U = U;
+    results(v).V = V;
     
 end
 
@@ -128,7 +134,6 @@ end
 
 fprintf(1, 'saving all locally\n');
 save(fullfile(ops.localSavePath, 'results.mat'), 'results', '-v7.3');
-
 
 
 fprintf(1, 'done\n');

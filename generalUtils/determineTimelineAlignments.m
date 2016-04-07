@@ -13,7 +13,7 @@ function [numExps, nFrPerExp, allT, existExps, alignmentWorked] = determineTimel
 % subfolders or not
 
 if ops.verbose
-    fprintf(ops.statusDestination, '  loading timeline files to determine alignments... \n');
+    fprintf(1, '  loading timeline files to determine alignments... \n');
 end
 
 nExp = 1;
@@ -24,7 +24,7 @@ d = dir(rootFolder);
 numExps = length(d)-2;
 if numExps<1
     if ops.verbose
-        fprintf(ops.statusDestination, '    no experiments found at %s\n', rootFolder);
+        fprintf(1, '    no experiments found at %s\n', rootFolder);
     end
     numExps = 0;
     allT = {};
@@ -42,15 +42,17 @@ else
         if exist(timelinePath)
             load(timelinePath)
             strobeTimes = getStrobeTimes(Timeline, ops.rigName);
-            nFrPerExp(e) = numel(strobeTimes);
-            allT{e} = strobeTimes;
+            theseStrobeNumbers = sum(nFrPerExp)+1:sum(nFrPerExp)+numel(strobeTimes);
+            inclStrobes = mod(theseStrobeNumbers, ops.frameMod(1))==ops.frameMod(2); 
+            nFrPerExp(e) = numel(strobeTimes(inclStrobes));
+            allT{e} = strobeTimes(inclStrobes);
             existExps(end+1) = expNums(e);            
         end
     end
     
     if sum(nFrPerExp)~=nFrInV
         if ops.verbose
-            fprintf(ops.statusDestination, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
+            fprintf(1, '  Incorrect number of frames in the movie relative to the number of strobes detected. Will save data as one V.\n');
         end
         alignmentWorked  = false;
         numExps = 0;
@@ -58,7 +60,7 @@ else
         existExps = [];
     else
         if ops.verbose
-            fprintf(ops.statusDestination, '  alignments correct. \n');
+            fprintf(1, '  alignments correct. \n');
         end
         alignmentWorked = true;
         numExps = length(existExps);
