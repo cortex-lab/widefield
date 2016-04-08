@@ -11,7 +11,7 @@ try
     for b = 1:numBatches
         imstack = fread(fid,  imageSize(1)*imageSize(2)*batchSize, '*int16');
         imstack = single(imstack);
-        imstack = reshape(imstack, Ly, Lx, []);
+        imstack = reshape(imstack, imageSize(1), imageSize(2), []);
         [ds, ~]  = registration_offsets(imstack, ops, targetFrame, 0);
 
         allDs(ind:ind+size(imstack,3)-1,:) = ds;

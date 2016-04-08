@@ -64,18 +64,35 @@ if ops.doRegistration
     regOps.RegPrecision = ops.RegPrecision;
     regOps.phaseCorrelation = ops.phaseCorrelation;
     regOps.nRegisterBatchLimit = ops.nRegisterBatchLimit;
+    regOps.useGPU = ops.useGPU;
     
     v = ops.masterVid;
     datPath = ops.vids(v).thisDatPath;
     
     % determine target frame for the master video
+    if ops.verbose
+        fprintf(1, 'determining target for image registration\n');
+    end
+    imageSize = results(v).imageSize;
+    nFr = results(v).nFrames;
     targetFrame = determineTargetFrame(datPath, imageSize, nFr, regOps);
     
+    
     % figure out the shifts required to align to it
+    if ops.verbose
+        fprintf(1, 'determining registration shifts\n');
+    end
     ds = alignToTarget(datPath, targetFrame, imageSize, nFr, regOps);
     
     % now shift every video to match
+    if ops.verbose
+        fprintf(1, 'applying registration\n');
+    end
     for v = 1:length(ops.vids)
+        results(v).registrationDs = ds;
+        if ops.verbose
+            fprintf(1, '  to vid %d\n', v);
+        end
         datPath = ops.vids(v).thisDatPath;
         regPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'reg.dat']);
         registerDatFile(datPath, regPath, ds, results(v).imageSize, results(v).nFrames, regOps);
@@ -101,8 +118,8 @@ for v = 1:length(ops.vids)
     svdOps.Ly = results(v).imageSize(1); svdOps.Lx = results(v).imageSize(2); % not actually used in SVD function, just locally here
 
     if ops.doRegistration
-        minDs = min(dataSummary.regDs, [], 1);
-        maxDs = max(dataSummary.regDs, [], 1);
+        minDs = min(results(v).registrationDs, [], 1);
+        maxDs = max(results(v).registrationDs, [], 1);
 
         svdOps.yrange = ceil(maxDs(1)):floor(svdOps.Ly+minDs(1));
         svdOps.xrange = ceil(maxDs(2)):floor(svdOps.Lx+minDs(2));    
