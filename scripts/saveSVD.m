@@ -100,7 +100,7 @@ end
 
 function saveU(U, Upath, ops)
 if isfield(ops, 'saveAsNPY') && ops.saveAsNPY
-    writeUVtoNPY(U, [], fullfile(Upath, ['SVD_Results_U' ops.vids(ops.thisVid).name]), []);
+    writeUVtoNPY(U, [], fullfile(Upath, ['SVD_Results_U' ops.vidName]), []);
 else
     save(fullfile(Upath, 'SVD_Results_U'), '-v7.3', 'U');
 end

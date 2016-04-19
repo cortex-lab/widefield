@@ -35,16 +35,7 @@ if ~isfield(ops, 'verbose')
     ops.verbose = false;
 end
 
-
-switch ops.rawDataType    
-    case 'tif'                
-        firstFrame = imread(ops.theseFiles{1}, 1);
-    case 'customPCO'
-        firstFrame = readOneCustomPCO(ops.theseFiles{1}, 1);
-    case 'StackSet'
-        firstFrame = [];% 
-end
-rawDType = class(firstFrame);
+rawDType = 'int16';
 
 ntotframes          = ceil(sum(ops.Nframes));
 ops.NavgFramesSVD   = min(ops.NavgFramesSVD, ntotframes);

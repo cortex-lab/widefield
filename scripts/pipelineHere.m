@@ -95,6 +95,7 @@ if ops.doRegistration
         end
         datPath = ops.vids(v).thisDatPath;
         regPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'reg.dat']);
+        ops.vids(v).thisRegPath = regPath;
         registerDatFile(datPath, regPath, ds, results(v).imageSize, results(v).nFrames, regOps);
     end
     
@@ -133,11 +134,9 @@ for v = 1:length(ops.vids)
     svdOps.Nframes = numel(results(v).timeStamps); % number of frames in whole movie
 
     svdOps.mimg = results(v).meanImage;
-    
-    svdOps.theseFiles = ops.vids(v).theseFiles;    
-    
+        
     tic
-    [ops, U, Sv, V, totalVar] = get_svdcomps(svdOps);
+    [U, Sv, V, totalVar] = get_svdcomps(svdOps);
     toc   
     
     % what to do about this? Need to save all "vids" - where?
