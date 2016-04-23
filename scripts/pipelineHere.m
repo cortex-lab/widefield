@@ -3,9 +3,9 @@
 % New pipeline script. 
 % As before, first set options variable "ops". 
 
-addpath(genpath('/mnt/zserver/Code/Rigging'));
-addpath(genpath('/mnt/data/svdinput/npy-matlab'));
-addpath('/mnt/data/svdinput/'); % for +dat
+% addpath(genpath('/mnt/zserver/Code/Rigging'));
+% addpath(genpath('/mnt/data/svdinput/npy-matlab'));
+% addpath('/mnt/data/svdinput/'); % for +dat
 
 load ops.mat; % this must be present in the current directory
 diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
@@ -36,6 +36,7 @@ for v = 1:length(ops.vids)
     ops.vids(v).thisDatPath = fullfile(ops.localSavePath, ['vid' num2str(v) 'raw.dat']);
     loadDatOps.datPath = ops.vids(v).thisDatPath;    
     loadDatOps.verbose = ops.verbose;
+    loadDatOps.rawDataType = ops.rawDataType;
     
     loadDatOps.frameMod = ops.vids(v).frameMod;
     loadDatOps.hasASCIIstamp = ops.hasASCIIstamp;

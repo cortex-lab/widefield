@@ -5,7 +5,7 @@ function dataSummary = loadRawToDat(ops)
 % flat binary (dat) file in datPath. While doing so,
 
 theseFiles = ops.theseFiles;
-datPath = ops.thisDatPath;
+datPath = ops.datPath;
 
 frameNumbers = [];
 timeStamps = [];
