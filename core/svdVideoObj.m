@@ -87,7 +87,7 @@ classdef svdVideoObj < handle
                         
                         this.ops.vids(vidNum).name = thisName;
                         this.ops.vids(vidNum).fileBase = fullfile('/mnt/data/svdinput/', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', camIDNum));
-                        this.ops.vids(vidNum).frameMod = [nColors,c-1]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
+                        this.ops.vids(vidNum).frameMod = [nColors,mod(c,nColors)]; % specifies which frames are these. mod(frameNums,frameMod(1))==frameMod(2);
                         this.ops.vids(vidNum).rigName = sprintf('bigrig%d', camIDNum);
                         this.ops.vids(vidNum).Fs = Fs/nColors;
                         this.ops.vids(vidNum).exposureDur = exposureDur;
