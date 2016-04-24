@@ -6,6 +6,7 @@
 addpath(genpath('/mnt/zserver/Code/Rigging'));
 addpath(genpath('/mnt/data/svdinput/npy-matlab'));
 addpath('/mnt/data/svdinput/'); % for +dat
+addpath(genpath('/mnt/data/svdinput/widefield'));
 
 load ops.mat; % this must be present in the current directory
 diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
