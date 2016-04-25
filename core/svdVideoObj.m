@@ -171,6 +171,8 @@ classdef svdVideoObj < handle
         function delete(this)
             fprintf(1, 'closing udp connection\n');
             fclose(this.myUDP);
+            delete(this.myUDP);
+            
         end
     end
 end
