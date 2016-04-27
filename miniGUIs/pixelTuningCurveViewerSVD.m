@@ -90,6 +90,7 @@ f = figure;
 
 set(f, 'UserData', ud);
 set(f, 'KeyPressFcn', @(f,k)tcViewerCallback(f, k, allData));
+set(f,'WindowScrollWheelFcn',{@tcViewerCallbackWheel,allData});
 
 showTC(allData, f, 'init');
 
@@ -233,6 +234,17 @@ end
 set(figHand, 'UserData', ud);
 showTC(allData, figHand, updateType);
 
+function tcViewerCallbackWheel(f, eventdata, allData)
+
+ud = get(f, 'UserData');
+
+frames_move = eventdata.VerticalScrollCount;
+ud.thisTimePoint = ud.thisTimePoint+frames_move;
+if ud.thisTimePoint>ud.nTimePoints; ud.thisTimePoint = ud.nTimePoints; end;
+if ud.thisTimePoint<1; ud.thisTimePoint = 1; end;
+updateType = 'timePoint';
+set(f, 'UserData', ud);
+showTC(allData, f, updateType);
 
 
 function showTC(allData, figHand, updateType)
