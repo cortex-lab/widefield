@@ -42,7 +42,8 @@ else
         if exist(timelinePath)
             load(timelinePath)
             strobeTimes = getStrobeTimes(Timeline, ops.rigName);
-            theseStrobeNumbers = sum(nFrPerExp)+1:sum(nFrPerExp)+numel(strobeTimes);
+            theseStrobeNumbers = 1:numel(strobeTimes);
+%             theseStrobeNumbers = sum(nFrPerExp)+1:sum(nFrPerExp)+numel(strobeTimes);
             inclStrobes = mod(theseStrobeNumbers, ops.frameMod(1))==ops.frameMod(2); 
             nFrPerExp(e) = numel(strobeTimes(inclStrobes));
             allT{e} = strobeTimes(inclStrobes);

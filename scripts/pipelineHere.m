@@ -3,9 +3,8 @@
 % New pipeline script. 
 % As before, first set options variable "ops". 
 
-addpath(genpath('/mnt/zserver/Code/Rigging'));
+addpath(genpath('/mnt/zserver/Code/Rigging/main'));
 addpath(genpath('/mnt/data/svdinput/npy-matlab'));
-addpath('/mnt/data/svdinput/'); % for +dat
 addpath(genpath('/mnt/data/svdinput/widefield'));
 
 load ops.mat; % this must be present in the current directory
