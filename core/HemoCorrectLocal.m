@@ -1,5 +1,5 @@
 function [Vout, T] = HemoCorrectLocal(U, V, Vaux, fS, FreqRange, pixSpace)
-% function [Vout, T] = HemoCorrect(V1, V2, fS, FreqRange)
+% function [Vout, T] = HemoCorrectLocal(U, V, Vaux, fS, FreqRange, pixSpace)
 % 
 % Does local hemodynamic correction for widefield imaging, in SVD space.
 %
@@ -20,8 +20,11 @@ function [Vout, T] = HemoCorrectLocal(U, V, Vaux, fS, FreqRange, pixSpace)
 %
 % Outputs: Vout is corrected signal
 % T is transformation matrix that predicts V from Vaux
-%
-% NOTE: that the V matrices are nTimes by nSVDs - not the other way round!
+
+
+% Transpose to allow for conventional nSVDs x nTimes input
+V = V';
+Vaux = Vaux';
 
 if nargin<5
     FreqRange = [9 13];
@@ -92,4 +95,5 @@ f1Vout = f1V - f1Vaux*T';
 f1Powcor = sum(f1Vout(:).^2);
 fprintf('Above .1Hz: %f percent variance explained\n', 100*(f1Pow-f1Powcor)/f1Pow);
 
-
+% Transpose to return conventional nSVs x nTimes output
+Vout = Vout';

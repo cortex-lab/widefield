@@ -1,5 +1,3 @@
-
-
 function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 % function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 %
@@ -425,4 +423,3 @@ stop(myTimer)
 delete(myTimer);
 
 delete(s);
-
