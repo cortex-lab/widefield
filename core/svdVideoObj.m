@@ -70,7 +70,7 @@ classdef svdVideoObj < handle
                 exposureDur = input('  What is the exposure duration of this camera? [19] ');
                 if isempty(exposureDur); exposureDur = 19; end
                 
-                exposureDur = input('  Flip up/down? [0] ');
+                flipudVid = input('  Flip up/down? [0] ');
                 if isempty(flipudVid); flipudVid = 0; end
                 
                 nColors = input('  How many colors on this camera? [1] ');
@@ -111,7 +111,7 @@ classdef svdVideoObj < handle
             end
             
             fprintf(1, 'You entered videos: \n');
-            for v = 1:numel(this.ops.vids)-1
+            for v = 1:numel(this.ops.vids)
                 fprintf(1, '%d: %s\n', v, this.ops.vids(v).name);
             end
             
@@ -171,6 +171,8 @@ classdef svdVideoObj < handle
         function delete(this)
             fprintf(1, 'closing udp connection\n');
             fclose(this.myUDP);
+            delete(this.myUDP);
+            
         end
     end
 end
