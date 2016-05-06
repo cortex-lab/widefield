@@ -201,6 +201,19 @@ switch keydata.Key
             start(ud.myTimer);
             set(f, 'Name', sprintf('playing at rate %d', ud.rate));
         end
+    case 'r'
+        % draw ROI, output average traces and mask to workspace
+        roiMask = roipoly;
+        roiU = reshape(allData.U(repmat(roiMask,1,1,size(allData.U,3))),sum(roiMask(:)),[]);
+        roiTraces = arrayfun(@(x) roiU*permute(allData.V(x,:,:),[2,3,1]),1:size(allData.V,1),'uni',false);
+        roiTraces_mean = cell2mat(cellfun(@(x) nanmean(x,1),roiTraces','uni',false));
+        roi.traces = roiTraces_mean;
+        roi.mask = roiMask;
+        im = allData.U(:,:,1);
+        im(bwperim(roiMask)) = 0;
+        roi.im = im;
+        % push to base workspace
+        assignin('base','roi',roi);
         
 
 end
