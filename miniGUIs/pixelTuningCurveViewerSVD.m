@@ -29,6 +29,9 @@ function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 % - Use 'f' or 's' to make playback faster or slower
 % - Use '-' or '=' to make the caxis scale up or down
 % - Hold alt and use arrow keys to rotate/flip the image
+% - Use 'r' to draw ROI in image and return peri-event traces to the
+% workspace as an roi structure containing roi.traces, roi.mask (the mask
+% that makes up the roi), and roi.im (the first SVD with the ROI outlined)
 
 
 t = t(:)'; % make row
