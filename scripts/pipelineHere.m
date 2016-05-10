@@ -4,6 +4,8 @@
 % As before, first set options variable "ops". 
 
 addpath(genpath('/mnt/zserver/Code/Rigging/main'));
+addpath(genpath('/mnt/zserver/Code/Rigging/cb-tools')); % for some dat package helper functions
+addpath('/mnt/data/svdinput'); % for the local override of dat.paths
 addpath(genpath('/mnt/data/svdinput/npy-matlab'));
 addpath(genpath('/mnt/data/svdinput/widefield'));
 

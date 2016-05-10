@@ -2,6 +2,9 @@
 
 function ops = svdConfig(varargin)
 % function ops = svdConfig(baseOps, userName)
+%
+% If you have specific settings, you want to customize, add them in the
+% switch/case block at the end. 
 
 if numel(varargin)==1
     baseOps = varargin{1};
@@ -15,7 +18,7 @@ end
 
 
 % defaults
-ops.verbose = true;
+ops.verbose = true; % whether it will output messages
 
 ops.saveAsNPY = true; % set as false if you want the output on zserver to be mat files instead                                                      
                            
@@ -51,6 +54,8 @@ switch lower(userName)
     case 'elina'
         
     case 'mika'
+        
+    case 'andy'
         
 end
 
