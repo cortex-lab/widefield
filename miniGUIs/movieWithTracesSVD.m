@@ -30,7 +30,7 @@ function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
 allData.U = U;
 allData.V = V;
 allData.t = t;
-if ~isempty(traces)
+if exist('traces','var') && ~isempty(traces)
     allData.traces = traces;
 else
     allData.traces = [];
@@ -59,7 +59,7 @@ ud.pixColors =  ... % default color order
     0.6350    0.0780    0.1840];
 
 
-if ~isempty(movieSaveFilePath) && exist('movieSaveFilePath')
+if exist('movieSaveFilePath') && ~isempty(movieSaveFilePath)
     WriterObj = VideoWriter(movieSaveFilePath);
     WriterObj.FrameRate=35;
     open(WriterObj);
