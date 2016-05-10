@@ -150,6 +150,7 @@ for v = 1:length(ops.vids)
     saveOps.vidName = ops.vids(v).name;
     saveOps.saveAsNPY = ops.saveAsNPY;
     saveOps.frameMod = ops.vids(v).frameMod;
+    saveOps.expRefs = ops.expRefs;
     
     results(v).Sv = Sv;
     results(v).totalVar = totalVar;
