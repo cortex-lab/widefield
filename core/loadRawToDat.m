@@ -115,15 +115,17 @@ try
                     end
                     
                 case 'customPCO'
-                    frameNumbers(frameIndex+1:frameIndex+nfr) = NaN;
-                    [~,~,thisTS] = LoadCustomPCO(thisFile, false, true);
-                    thisTS = thisTS*24*3600; % convert to seconds from days
-                    
-                    if fileInd==1
-                        firstTS=thisTS(1);
-                    end
-                    
-                    timeStamps(frameIndex+1:frameIndex+nfr) = thisTS-firstTS;
+                    fprintf(1, ' customPCO loading not supported in this version. Revert to older code or implement yourself.\n');
+                    return;
+%                     frameNumbers(frameIndex+1:frameIndex+nfr) = NaN;
+%                     [~,~,thisTS] = LoadCustomPCO(thisFile, false, true);
+%                     thisTS = thisTS*24*3600; % convert to seconds from days
+%                     
+%                     if fileInd==1
+%                         firstTS=thisTS(1);
+%                     end
+%                     
+%                     timeStamps(frameIndex+1:frameIndex+nfr) = thisTS-firstTS;
             end
         else
             fprintf(1, '  options are set as though you don''t have binary stamps in your images. But you really need them!!! everything is going to fail here.');
@@ -180,7 +182,7 @@ end
 fclose(fid);
 
 
-nFrames = numel(frameNumbers);
+nFrames = numel(frameNumbersFromStamp);
 meanImage = sumImage/nFrames;
 
 dataSummary.frameNumbersFromStamp = frameNumbersFromStamp;
