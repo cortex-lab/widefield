@@ -39,7 +39,7 @@ frameRecIndex = [];
 imageMeans = [];
 
 recIndex = 0;
-
+lastFrameNum = 0;
 try
     fid = fopen(datPath, 'w');
     frameIndex = 0;
@@ -76,8 +76,7 @@ try
                     if fileInd==1
                         firstTS=thisTS(1);
                         thisTS = thisTS-firstTS;
-                        frameDiffs = diff([-10 thisTS]);  % so first frame is a "new rec"                      
-                        
+                        frameDiffs = diff([-10 thisTS]);  % so first frame is a "new rec"                                              
                     else
                         thisTS = thisTS-firstTS;
                         frameDiffs = diff([timeStampsFromStamp(end) thisTS]);
@@ -85,7 +84,8 @@ try
                     end       
                     
                     newRecInds = find(frameDiffs>2); % any 2-second gaps between frames indicate a new recording
-                    theseRecIndex = recIndex*ones(size(thisTS));
+                    theseRecIndex = recIndex*ones(size(thisTS));       %default unless new recs present
+                    theseFrameNumbersWithinRec = lastFrameNum+(1:length(thisTS)); %default unless new recs present
                     nFrThisFile = length(thisTS);
                     for n = 1:length(newRecInds)
                         recIndex = recIndex+1;
@@ -105,6 +105,7 @@ try
                     frameFileIndex(frameIndex+1:frameIndex+nfr) = fileInd;
                     frameRecIndex(frameIndex+1:frameIndex+nfr) = theseRecIndex(inclFrames);
                     frameNumbersWithinRec(frameIndex+1:frameIndex+nfr) = theseFrameNumbersWithinRec(inclFrames);
+                    lastFrameNum = theseFrameNumbersWithinRec(end);
                     
                     if ops.frameMod(1)>1
                         if ops.verbose
