@@ -111,6 +111,8 @@ end
 
 %% perform SVD
 
+%% perform SVD
+
 svdOps.NavgFramesSVD = ops.NavgFramesSVD;
 svdOps.verbose = ops.verbose;
 svdOps.nSVD = ops.nSVD;
@@ -134,7 +136,7 @@ for v = 1:length(ops.vids)
         svdOps.xrange = 1:svdOps.Lx;
         svdOps.RegFile = ops.vids(v).thisDatPath;
     end
-    svdOps.Nframes = numel(results(v).timeStamps); % number of frames in whole movie
+    svdOps.Nframes = results(v).nFrames; % number of frames in whole movie
 
     svdOps.mimg = results(v).meanImage;
         
