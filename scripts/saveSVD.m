@@ -1,6 +1,13 @@
 
 
 function saveSVD(ops, U, V, dataSummary)
+% 
+% dataSummary must have:
+% - meanImage
+% - frameRecIndex, 1xN integers where N is the number of frames in V and
+% the entries identify which recording (sequentially) that frame was part
+% of
+
 
 [numExps, nFrPerExp, allT, existExps, alignmentWorked] = determineTimelineAlignments(ops, size(V,2));
 
@@ -30,9 +37,9 @@ if alignmentWorked
 
     for n = 1:numExps
         if ops.verbose
-            fprintf(1, '  saving V for exp %d... \n', existExps(n));
+            fprintf(1, '  saving V for exp %s with timestamps... \n', existExps{n});
         end
-        filePath = dat.expPath(ops.mouseName, ops.thisDate, existExps(n), 'main', 'master');
+        filePath = dat.expPath(existExps{n}, 'main', 'master');
         mkdir(filePath);
         
         V = allV(:,fileInds(n)+1:fileInds(n+1));
@@ -41,9 +48,32 @@ if alignmentWorked
         saveV(V, t, filePath, ops);
         
     end
-else % alignment didn't work, just save it like U, in the root directory
+elseif isfield(ops, 'expRefs') && ~isempty(ops.expRefs) && length(ops.expRefs)==length(unique(dataSummary.frameRecIndex))
+    % here, alignment didn't work but the number of recordings we found
+    % matches the number of expRefs we were given. So we will save each section of V,
+    % without timestamps, to its correct directory
+    allV = V;    
+    recInds = dataSummary.frameRecIndex;
+    numExps = length(ops.expRefs);
+    
+    for n = 1:numExps
+        if ops.verbose
+            fprintf(1, '  saving V for exp %s without timestamps... \n', ops.expRefs{n});
+        end
+        filePath = dat.expPath(ops.expRefs{n}, 'main', 'master');
+        mkdir(filePath);
+        
+        V = allV(:,recInds==n);
+
+        saveV(V, [], filePath, ops);
+        
+    end
+    
+else        
+    % alignment didn't work at all, just save it like U, in the root directory
+        
     if ops.verbose
-        fprintf(1, '  saving V... \n');
+        fprintf(1, '  saving V in root... \n');
     end
     
     vPath = Upath;

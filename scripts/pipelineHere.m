@@ -4,6 +4,8 @@
 % As before, first set options variable "ops". 
 
 addpath(genpath('/mnt/zserver/Code/Rigging/main'));
+addpath(genpath('/mnt/zserver/Code/Rigging/cb-tools')); % for some dat package helper functions
+addpath('/mnt/data/svdinput'); % for the local override of dat.paths
 addpath(genpath('/mnt/data/svdinput/npy-matlab'));
 addpath(genpath('/mnt/data/svdinput/widefield'));
 
@@ -109,6 +111,8 @@ end
 
 %% perform SVD
 
+%% perform SVD
+
 svdOps.NavgFramesSVD = ops.NavgFramesSVD;
 svdOps.verbose = ops.verbose;
 svdOps.nSVD = ops.nSVD;
@@ -132,7 +136,7 @@ for v = 1:length(ops.vids)
         svdOps.xrange = 1:svdOps.Lx;
         svdOps.RegFile = ops.vids(v).thisDatPath;
     end
-    svdOps.Nframes = numel(results(v).timeStamps); % number of frames in whole movie
+    svdOps.Nframes = results(v).nFrames; % number of frames in whole movie
 
     svdOps.mimg = results(v).meanImage;
         
@@ -150,6 +154,7 @@ for v = 1:length(ops.vids)
     saveOps.vidName = ops.vids(v).name;
     saveOps.saveAsNPY = ops.saveAsNPY;
     saveOps.frameMod = ops.vids(v).frameMod;
+    saveOps.expRefs = ops.expRefs;
     
     results(v).Sv = Sv;
     results(v).totalVar = totalVar;
