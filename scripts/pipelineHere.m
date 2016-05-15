@@ -189,6 +189,7 @@ if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
     props.setProperty('mail.smtp.socketFactory.port','465');    
                                                                                                                                                                          messages = {'I am the SVD master.', 'But I can''t help the fact that your data sucks.', 'Decomposing all day, decomposing all night.', 'You''re welcome.', 'Now you owe me a beer.'};    
     % Send the email
+    rng('shuffle')
     sendmail(ops.emailAddress,[ops.mouseName '_' ops.thisDate ' finished.'], ...
         messages{randi(numel(messages),1)}, diaryFilename);
 
