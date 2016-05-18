@@ -1,13 +1,13 @@
 
+try % putting the entire script in a try-catch block to we can return even if it fails
 
 % New pipeline script. 
-% As before, first set options variable "ops". 
 
 addpath(genpath('/mnt/zserver/Code/Rigging/main'));
 addpath(genpath('/mnt/zserver/Code/Rigging/cb-tools')); % for some dat package helper functions
 addpath('/mnt/data/svdinput'); % for the local override of dat.paths
 addpath(genpath('/mnt/data/svdinput/npy-matlab'));
-addpath(genpath('/mnt/data/svdinput/widefield'));
+addpath(genpath('/apps/widefield'));
 
 load ops.mat; % this must be present in the current directory
 diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
@@ -22,6 +22,27 @@ if ~exist(ops.localSavePath, 'dir')
     mkdir(ops.localSavePath);
 end
 save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
+
+%% copy all the files from the camera computers to the local computer
+
+remoteDataSource = ops.remoteDataSource;
+for d = 1:length(remoteDataSource)
+    r = remoteDataSource{d};
+    loc = ops.localDataDest{d};
+    if ops.verbose
+        fprintf(1, 'copying files for data source %d from: \n   %s \nto: \n   %s\n', d, r, loc);
+    end
+    [success, message, messageID] = copyfile(pathForThisOS(fullfile(r, '*.tif')), pathForThisOS(loc));
+    if ops.verbose && success
+        fprintf(1, 'success. deleting files from remote.\n');
+        delete(fullfile(r, '*.tif'));
+    elseif success
+        delete(fullfile(r, '*.tif'));
+    elseif ops.verbose
+        fprintf(1, 'error copying: %s.\n', message);
+    end
+end
+    
 
 %% load all movies into flat binary files
 
@@ -109,7 +130,6 @@ end
 % (though that has not been explicitly tested). 
 
 
-%% perform SVD
 
 %% perform SVD
 
@@ -167,36 +187,44 @@ end
 
 %% save
 
-fprintf(1, 'saving all locally\n');
+fprintf(1, 'saving all results locally at %s\n', fullfile(ops.localSavePath, 'results.mat'));
 save(fullfile(ops.localSavePath, 'results.mat'), 'results', '-v7.3');
 
 
 fprintf(1, 'done\n');
 diary off;
+rng('shuffle');
 
-if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
-    mail = 'lugaro.svd@gmail.com'; %Your GMail email address
-    password = 'xpr!mnt1'; %Your GMail password
-    
-    % Then this code will set up the preferences properly:
-    setpref('Internet','E_mail',mail);
-    setpref('Internet','SMTP_Server','smtp.gmail.com');
-    setpref('Internet','SMTP_Username',mail);
-    setpref('Internet','SMTP_Password',password);
-    props = java.lang.System.getProperties;
-    props.setProperty('mail.smtp.auth','true');
-    props.setProperty('mail.smtp.socketFactory.class', 'javax.net.ssl.SSLSocketFactory');
-    props.setProperty('mail.smtp.socketFactory.port','465');    
-                                                                                                                                                                         messages = {'I am the SVD master.', 'But I can''t help the fact that your data sucks.', 'Decomposing all day, decomposing all night.', 'You''re welcome.', 'Now you owe me a beer.'};    
+if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)        
+                                                                                                                                                                         messages = {'I am the SVD master.', 'Decomposing all day, decomposing all night.', 'Yes! Yes! Woooooooooo!', 'Wha wha whaaat?? It happened! It really happened!!'};    
     % Send the email
-    rng('shuffle')
-    sendmail(ops.emailAddress,[ops.mouseName '_' ops.thisDate ' finished.'], ...
+    mailFromLugaro(ops.emailAddress, [ops.mouseName '_' ops.thisDate ' finished.'], ...
         messages{randi(numel(messages),1)}, diaryFilename);
-
+    
 end
 
 % save(fullfile(ops.localSavePath, 'done.mat'), []);
 % Instead, copy the folder of raw files into the /mnt/data/toArchive folder
-destFolder = fullfile('/mnt/data/toarchive/', ops.mouseName, ops.thisDate);
+destFolder = fullfile('/mnt/bigdrive/', ops.mouseName, ops.thisDate);
 mkdir(destFolder);
 movefile(fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '*'), destFolder);
+
+% clean up dat files
+for v = 1:length(ops.vids)
+    if isfield(ops.vids(v), 'thisDatPath') && exist(ops.vids(v).thisDatPath)
+        delete(ops.vids(v).thisDatPath);
+    end
+    if isfield(ops.vids(v), 'thisRegPath') && exist(ops.vids(v).thisRegPath)
+        delete(ops.vids(v).thisRegPath);
+    end
+end
+
+
+catch me
+    diary off;
+if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
+    mailFromLugaro(ops.emailAddress, [ops.mouseName '_' ops.thisDate ' got an error :('], ...
+        me.message, diaryFilename);
+end
+
+end 
