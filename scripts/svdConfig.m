@@ -52,6 +52,7 @@ switch lower(userName)
     case 'daisuke'
         
     case 'elina'
+        ops.nSVD = 2500;
         
     case 'mika'
         

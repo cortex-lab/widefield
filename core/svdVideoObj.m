@@ -51,6 +51,9 @@ classdef svdVideoObj < handle
         function wizard(this)
             this.describe();
             
+            zamera1Dir = fullfile('\\zamera1\data', this.ops.mouseName, this.ops.thisDate);
+            zamera2Dir = fullfile('\\zamera2\data', this.ops.mouseName, this.ops.thisDate);
+            
             nCams = input('How many cameras are you using? [1] ');
             if isempty(nCams); nCams = 1; end
             this.ops.nCams = nCams;
@@ -156,17 +159,37 @@ classdef svdVideoObj < handle
         
         function go(this)
             
-            mkdir(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate));
+            % for now hardcode all these paths; later should have some rig
+            % config things
+            lugaroDir = fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate);
+            zamera1Dir = fullfile('\\zamera1\data', this.ops.mouseName, this.ops.thisDate);
+            zamera2Dir = fullfile('\\zamera2\data', this.ops.mouseName, this.ops.thisDate);
             
-            for n = 1:this.ops.nCams
+            mkdir(lugaroDir);
+            
+            for n = 1:this.ops.nCams                
                 mkdir(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', this.ops.camIDNums(n))));
+                if this.ops.camIDNums(n)==1
+                    mkdir(zamera1Dir)
+                    fprintf(1, 'Made directory for you at %s, go copy your files there\n', zamera1Dir); 
+                    this.ops.remoteDataSource{n} = fullfile('/mnt/zamera1/data/', this.ops.mouseName, this.ops.thisDate);
+                    this.ops.localDataDest{n} = fullfile('/mnt/data/svdinput/', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', this.ops.camIDNums(n)));
+                elseif this.ops.camIDNums(n)==2
+                    mkdir(zamera2Dir)
+                    fprintf(1, 'Made directory for you at %s, go copy your files there\n', zamera2Dir);
+                    this.ops.remoteDataSource{n} = fullfile('/mnt/zamera2/data/', this.ops.mouseName, this.ops.thisDate);
+                    this.ops.localDataDest{n} = fullfile('/mnt/data/svdinput/', this.ops.mouseName, this.ops.thisDate, sprintf('cam%d', this.ops.camIDNums(n)));
+                end
             end
             
             
             ops = this.ops;
-            save(fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate, 'ops.mat'), 'ops');
+            save(fullfile(lugaroDir, 'ops.mat'), 'ops');
             
-            fprintf(1, 'Made directories for you at %s, go copy your files there\n', fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate));                        
+            q = which('pipelineHere');
+            copyfile(q, lugaroDir);
+            
+%             fprintf(1, 'Made directories for you at %s, go copy your files there\n', fullfile('\\lugaro.cortexlab.net\svdinput\', this.ops.mouseName, this.ops.thisDate));                        
             
         end
         
