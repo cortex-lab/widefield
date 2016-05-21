@@ -12,36 +12,6 @@ addpath(genpath('/apps/widefield'));
 load ops.mat; % this must be present in the current directory
 diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
 diary(diaryFilename);
-
-ops.localSavePath = pathForThisOS(ops.localSavePath);
-for v = 1:length(ops.vids)
-    ops.vids(v).fileBase = pathForThisOS(ops.vids(v).fileBase);
-end
-
-if ~exist(ops.localSavePath, 'dir')
-    mkdir(ops.localSavePath);
-end
-save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
-
-%% copy all the files from the camera computers to the local computer
-
-remoteDataSource = ops.remoteDataSource;
-for d = 1:length(remoteDataSource)
-    r = remoteDataSource{d};
-    loc = ops.localDataDest{d};
-    if ops.verbose
-        fprintf(1, 'copying files for data source %d from: \n   %s \nto: \n   %s\n', d, r, loc);
-    end
-    [success, message, messageID] = copyfile(pathForThisOS(fullfile(r, '*.tif')), pathForThisOS(loc));
-    if ops.verbose && success
-        fprintf(1, 'success. deleting files from remote.\n');
-        delete(fullfile(r, '*.tif'));
-    elseif success
-        delete(fullfile(r, '*.tif'));
-    elseif ops.verbose
-        fprintf(1, 'error copying: %s.\n', message);
-    end
-end
     
 
 %% load all movies into flat binary files
@@ -221,10 +191,10 @@ end
 
 
 catch me
-    diary off;
 if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
     mailFromLugaro(ops.emailAddress, [ops.mouseName '_' ops.thisDate ' got an error :('], ...
         me.message, diaryFilename);
 end
-
+    disp(me.message);
+    diary off;
 end 
