@@ -1,4 +1,6 @@
 
+function pipelineHere()
+
 try % putting the entire script in a try-catch block to we can return even if it fails
 
 % New pipeline script. 
@@ -198,3 +200,5 @@ end
     disp(me.message);
     diary off;
 end 
+
+end
