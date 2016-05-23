@@ -37,17 +37,6 @@ for curr_pipeline = 1:length(pipeline_filenames)
         % Load options
         load ops.mat;
         
-        % Make directory on lugaro for transferring
-        ops.localSavePath = pathForThisOS(ops.localSavePath);
-        for v = 1:length(ops.vids)
-            ops.vids(v).fileBase = pathForThisOS(ops.vids(v).fileBase);
-        end
-        
-        if ~exist(ops.localSavePath, 'dir')
-            mkdir(ops.localSavePath);
-        end
-        save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');
-        
         % Copy files from zamera(s) to lugaro
         remoteDataSource = ops.remoteDataSource;
         for d = 1:length(remoteDataSource)
