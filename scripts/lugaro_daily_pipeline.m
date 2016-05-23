@@ -47,13 +47,10 @@ for curr_pipeline = 1:length(pipeline_filenames)
             end
             [success, message, messageID] = copyfile(pathForThisOS(fullfile(r, '*.tif')), pathForThisOS(loc));
             if ops.verbose && success
-                % TEMPORARY FOR NICK: don't delete files from zamera
-                fprintf(1, 'success. NOT deleting files from remote (temporary for Nick).\n');
-                %fprintf(1, 'success. deleting files from remote.\n');
-                %delete(fullfile(r, '*.tif'));
+                fprintf(1, 'success. deleting files from remote.\n');
+                delete(fullfile(r, '*.tif'));
             elseif success
-                % TEMPORARY FOR NICK: don't delete files from zamera
-                %delete(fullfile(r, '*.tif'));
+                delete(fullfile(r, '*.tif'));
             elseif ops.verbose
                 fprintf(1, 'error copying: %s.\n', message);
             end
