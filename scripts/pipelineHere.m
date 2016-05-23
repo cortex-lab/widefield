@@ -15,6 +15,15 @@ load ops.mat; % this must be present in the current directory
 diaryFilename = sprintf('svdLog_%s_%s.txt', ops.mouseName, ops.thisDate);
 diary(diaryFilename);
     
+ops.localSavePath = pathForThisOS(ops.localSavePath);
+for v = 1:length(ops.vids)
+    ops.vids(v).fileBase = pathForThisOS(ops.vids(v).fileBase);
+end
+
+if ~exist(ops.localSavePath, 'dir')
+    mkdir(ops.localSavePath);
+end
+save(fullfile(ops.localSavePath, 'ops.mat'), 'ops');    
 
 %% load all movies into flat binary files
 
