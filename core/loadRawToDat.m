@@ -27,6 +27,7 @@ function dataSummary = loadRawToDat(ops)
 % - binning - an integer N that specifies to apply N x N binning first
 % - 
 
+extraVerbose = false;
 
 theseFiles = ops.theseFiles;
 datPath = ops.datPath;
@@ -54,7 +55,7 @@ try
         clear imstack
         switch ops.rawDataType
             case 'tif'
-                imstack = loadTiffStack(thisFile, 'tiffobj', ops.verbose);
+                imstack = loadTiffStack(thisFile, 'tiffobj', extraVerbose);
             case 'customPCO'
                 [~,~,~,imstack] = LoadCustomPCO(thisFile, false, true);
         end
@@ -62,7 +63,7 @@ try
         
         
         if ops.hasBinaryStamp
-            if ops.verbose
+            if ops.verbose && extraVerbose
                 fprintf(1, '  computing timestamps\n');
             end
             
@@ -108,7 +109,7 @@ try
                     lastFrameNum = theseFrameNumbersWithinRec(end);
                     
                     if ops.frameMod(1)>1
-                        if ops.verbose
+                        if ops.verbose && extraVerbose
                             fprintf(1, '  selecting correct frames\n');
                         end
                         
@@ -136,7 +137,7 @@ try
         imstack = removeStamps(imstack, ops.hasASCIIstamp, ops.hasBinaryStamp);       
         
         if ops.binning>1
-            if ops.verbose
+            if ops.verbose && extraVerbose
                 fprintf(1, '  binning image\n');
             end
             imstack = binImage(imstack, ops.binning);            
@@ -154,13 +155,13 @@ try
             imstack = imstack(:,:,inclFrames);
         end
         
-        if ops.verbose
+        if ops.verbose && extraVerbose
             fprintf(1, '  computing image means\n');
         end
         imageMeans(frameIndex+1:frameIndex+nfr) = squeeze(mean(mean(imstack,1),2));
                                 
         
-        if ops.verbose
+        if ops.verbose && extraVerbose
             fprintf(1, '  computing mean image\n');
         end
         sumImage = sumImage+sum(double(imstack),3);
