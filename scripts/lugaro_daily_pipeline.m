@@ -17,7 +17,7 @@ fprintf(log_fid,['Started - ' datestr(now,'yyyy-mm-dd HH:MM')]);
 % the directory tree of this folder can be varied, so just search through
 % all subdirectories for instances of that script
 
-[~,pipeline_files] = system('find ''/mnt/data/svdinput'' -print | grep -i ''pipelineHere.m''');
+[~,pipeline_files] = system('find ''/mnt/data/svdinput'' -print | grep -i ''/pipelineHere.m''');
 pipeline_filenames_cell = textscan(pipeline_files,'%s','delimiter',' ');
 pipeline_filenames = pipeline_filenames_cell{1};
 
