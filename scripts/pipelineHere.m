@@ -173,7 +173,6 @@ save(fullfile(ops.localSavePath, 'results.mat'), 'results', '-v7.3');
 
 
 fprintf(1, 'done\n');
-diary off;
 rng('shuffle');
 
 if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)        
@@ -205,6 +204,7 @@ for v = 1:length(ops.vids)
     end
 end
 
+diary off;
 
 catch me
 if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
