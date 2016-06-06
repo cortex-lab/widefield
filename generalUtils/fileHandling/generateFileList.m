@@ -61,6 +61,8 @@ function theseFiles = directoryFileList(fileBase, rawDataType)
 switch rawDataType
     case 'tif'
         theseFilesDir = dir(fullfile(fileBase, '*.tif'));
+        [~,ii] = sort([theseFilesDir.datenum]);
+        theseFilesDir = theseFilesDir(ii);
     case 'customPCO'
         theseFilesDir = dir(fullfile(fileBase, '*.mat'));
         [~,ii] = sort([theseFilesDir.datenum]);
