@@ -48,9 +48,9 @@ for curr_pipeline = 1:length(pipeline_filenames)
             [success, message, messageID] = copyfile(pathForThisOS(fullfile(r, '*.tif')), pathForThisOS(loc));
             if ops.verbose && success
                 fprintf(1, 'success. deleting files from remote.\n');
-                delete(fullfile(r, '*.tif'));
+                delete(pathForThisOS(fullfile(r, '*.tif')));
             elseif success
-                delete(fullfile(r, '*.tif'));
+                delete(pathForThisOS(fullfile(r, '*.tif')));
             elseif ops.verbose
                 fprintf(1, 'error copying: %s.\n', message);
             end
