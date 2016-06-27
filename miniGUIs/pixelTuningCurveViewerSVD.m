@@ -62,7 +62,7 @@ for c = 1:nConditions
     else
         thisCondEvents = eventLabels==eLabels(c);
     end
-    avgPeriEventV(c,:,:) = squeeze(mean(periEventV(:,thisCondEvents,:),2));
+    avgPeriEventV(c,:,:) = squeeze(nanmean(periEventV(:,thisCondEvents,:),2));
 end
 fprintf(1, 'done.\n');
 
