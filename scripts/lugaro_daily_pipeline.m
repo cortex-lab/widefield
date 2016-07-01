@@ -55,9 +55,13 @@ for curr_pipeline = 1:length(pipeline_filenames)
                 fprintf(1, 'error copying: %s.\n', message);
             end
         end
-               
+        
         % Write sucess to log
-        fprintf(log_fid,[' - ' datestr(now,'HH:MM') ' copying succeeded' ]);
+        if success
+            fprintf(log_fid,[' - ' datestr(now,'HH:MM') ' copying succeeded' ]);
+        else
+            fprintf(log_fid,[' - ' datestr(now,'HH:MM') ' copying failed' ]);
+        end
         
     catch me
         
