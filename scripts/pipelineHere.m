@@ -186,10 +186,8 @@ end
 % save(fullfile(ops.localSavePath, 'done.mat'), []);
 % Instead, copy the folder of raw files into the /mnt/data/toArchive folder
 
-%%%% TEMPORARILY BACKING UP TO BASKET WHILE BIGDRIVE IS BROKEN
-warning('Backing up to basket/data/ajpeters while bigdrive is broken');
-% destFolder = fullfile('/mnt/bigdrive/', ops.mouseName, ops.thisDate);
-destFolder = fullfile('/data/ajpeters/lugaro_temporary_backup/', ops.mouseName, ops.thisDate);
+% Copy into bigdrive as of 2016-08-02
+destFolder = fullfile('/mnt/bigdrive/', ops.mouseName, ops.thisDate);
 
 mkdir(destFolder);
 movefile(fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '*'), destFolder);
