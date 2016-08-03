@@ -186,6 +186,10 @@ end
 % save(fullfile(ops.localSavePath, 'done.mat'), []);
 % Instead, copy the folder of raw files into the /mnt/data/toArchive folder
 
+% Diary has to be turned off before moving, otherwise it'll move the diary
+% and error out when it tries to write to it
+diary off;
+
 % Copy into bigdrive as of 2016-08-02
 destFolder = fullfile('/mnt/bigdrive/', ops.mouseName, ops.thisDate);
 
@@ -202,7 +206,6 @@ for v = 1:length(ops.vids)
     end
 end
 
-diary off;
 
 catch me
 if isfield(ops, 'emailAddress') && ~isempty(ops.emailAddress)
