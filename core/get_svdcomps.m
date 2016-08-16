@@ -101,7 +101,7 @@ mov             = reshape(mov, [], size(mov,3));
 
 % If an ROI for the brain was selected, zero all outside pixels
 % (AP 160804)
-if isfield('roi',ops) && ~isempty(ops.roi)
+if isfield(ops,'roi') && ~isempty(ops.roi)
     mov(~ops.roi(:),:) = 0;
 end
 
