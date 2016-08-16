@@ -122,7 +122,7 @@ svdOps.useGPU = ops.useGPU;
 
 % If an ROI for the brain was selected to exclude outside pixels
 % (AP 160804)
-if isfield('roi',ops)
+if isfield(ops,'roi')
     svdOps.roi = ops.roi;
 end
 
