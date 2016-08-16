@@ -17,7 +17,6 @@ disp('Making average image...');
 for frame = 1:numframes
     curr_frame = imread(im_filename,'tiff',frame,'Info',imageinfo);
     im_avg = im_avg +  double(curr_frame)./numframes;
-    disp(frame);
 end
 disp('Done');
 
