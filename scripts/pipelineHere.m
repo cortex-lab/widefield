@@ -216,11 +216,11 @@ for v = 1:length(move_folders)
     % Copy files to archiving folder (move if it's the last folder)
     if v ~= length(move_folders)
         for curr_file = 1:length(move_files)
-            copyfile(move_files{curr_file},dest_folder);
+            copyfile(move_files{curr_file},destFolder);
         end
     else
         for curr_file = 1:length(move_files)
-            movefile(move_files{curr_file},dest_folder);
+            movefile(move_files{curr_file},destFolder);
         end
     end
 end
