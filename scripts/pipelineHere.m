@@ -223,6 +223,13 @@ for v = 1:length(move_folders)
             movefile(move_files{curr_file},destFolder);
         end
     end
+    
+    % After everything is copied to the big hard drive, move to subfolder
+    % in that drive which is later moved to tape (this two-step process is
+    % to prevent moving half-copied files to tape)
+    tape_destFolder = ['/mnt/bigdrive/staging/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
+    movefile(destFolder,tape_destFolder);    
+    
 end
 
 % clean up dat files
