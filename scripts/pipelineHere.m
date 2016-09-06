@@ -207,28 +207,28 @@ move_files = cellfun(@(x) [current_lugaro_path filesep x],{current_lugaro_dir(~[
 for v = 1:length(move_folders)
     % Define archiving folder on bigdrive for camera data      
     move_folder_parts = strsplit(move_folders{v},filesep);
-    destFolder = ['/mnt/bigdrive/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
+    staging_destFolder = ['/mnt/bigdrive/staging/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
     
     % Move current folder to archiving folder
-    mkdir(destFolder);
-    movefile(move_folders{v}, destFolder);
+    mkdir(staging_destFolder);
+    movefile(move_folders{v}, staging_destFolder);
     
     % Copy files to archiving folder (move if it's the last folder)
     if v ~= length(move_folders)
         for curr_file = 1:length(move_files)
-            copyfile(move_files{curr_file},destFolder);
+            copyfile(move_files{curr_file},staging_destFolder);
         end
     else
         for curr_file = 1:length(move_files)
-            movefile(move_files{curr_file},destFolder);
+            movefile(move_files{curr_file},staging_destFolder);
         end
     end
     
     % After everything is copied to the big hard drive, move to subfolder
     % in that drive which is later moved to tape (this two-step process is
     % to prevent moving half-copied files to tape)
-    tape_destFolder = ['/mnt/bigdrive/staging/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
-    movefile(destFolder,tape_destFolder);    
+    tape_destFolder = ['/mnt/bigdrive/toarchive/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
+    movefile(staging_destFolder,tape_destFolder);    
     
 end
 
