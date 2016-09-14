@@ -98,6 +98,13 @@ end
 
 ops.nSVD = min(ops.nSVD, size(mov,3));
 mov             = reshape(mov, [], size(mov,3));
+
+% If an ROI for the brain was selected, zero all outside pixels
+% (AP 160804)
+if isfield(ops,'roi') && ~isempty(ops.roi)
+    mov(~ops.roi(:),:) = 0;
+end
+
 % mov             = mov./repmat(mean(mov.^2,2).^.5, 1, size(mov,2));
 COV             = mov' * mov/size(mov,1);
 

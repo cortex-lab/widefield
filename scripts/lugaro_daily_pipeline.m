@@ -8,7 +8,11 @@ addpath(genpath('/mnt/data/svdinput/npy-matlab'));
 addpath(genpath('/apps/widefield'));
 
 %% Open and timestamp log file
-log_file = ['/mnt/data/svdinput/svd_pipeline/svd_pipeline_logs/' datestr(now,'yyyy-mm-dd') '_svd_pipelines.txt'];
+log_path = '/mnt/data/svdinput/svd_pipeline/svd_pipeline_logs/';
+if ~exist(log_path,'dir')
+    mkdir(log_path)
+end
+log_file = [log_path datestr(now,'yyyy-mm-dd') '_svd_pipelines.txt'];
 log_fid = fopen(log_file,'w+t');
 fprintf(log_fid,['Started - ' datestr(now,'yyyy-mm-dd HH:MM')]);
 
@@ -97,6 +101,10 @@ for curr_pipeline = 1:length(pipeline_filenames)
     
 end
 
+%% Clear fastssd 
+
+fast_ssd_path = '/mnt/fastssd';
+delete([fast_ssd_path filesep '*']);
 
 %% Timestamp and close log file
 

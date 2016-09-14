@@ -4,6 +4,7 @@ function pipelineHere()
 try % putting the entire script in a try-catch block to we can return even if it fails
 
 % New pipeline script. 
+current_lugaro_path = pwd;
 
 addpath(genpath('/mnt/zserver/Code/Rigging/main'));
 addpath(genpath('/mnt/zserver/Code/Rigging/cb-tools')); % for some dat package helper functions
@@ -119,6 +120,12 @@ svdOps.verbose = ops.verbose;
 svdOps.nSVD = ops.nSVD;
 svdOps.useGPU = ops.useGPU;
 
+% If an ROI for the brain was selected to exclude outside pixels
+% (AP 160804)
+if isfield(ops,'roi')
+    svdOps.roi = ops.roi;
+end
+
 for v = 1:length(ops.vids)
     fprintf(1, ['svd on ' ops.vids(v).name '\n']);
     
@@ -190,11 +197,40 @@ end
 % and error out when it tries to write to it
 diary off;
 
-% Copy into bigdrive as of 2016-08-02
-destFolder = fullfile('/mnt/bigdrive/', ops.mouseName, ops.thisDate);
-
-mkdir(destFolder);
-movefile(fullfile('/mnt/data/svdinput/', ops.mouseName, ops.thisDate, '*'), destFolder);
+% Copy into bigdrive (2016-08-02)
+% Do this seperately for each camera folder (2016-08-16)
+% but include non-camera files (ops,pipelineHere,svdLog) in all folders
+current_lugaro_dir = dir(current_lugaro_path);
+move_folders = cellfun(@(x) [current_lugaro_path filesep x],{current_lugaro_dir([current_lugaro_dir.isdir]).name},'uni',false);
+move_folders = move_folders(3:end); % first two folders are always '.' and '..'
+move_files = cellfun(@(x) [current_lugaro_path filesep x],{current_lugaro_dir(~[current_lugaro_dir.isdir]).name},'uni',false);
+for v = 1:length(move_folders)
+    % Define archiving folder on bigdrive for camera data      
+    move_folder_parts = strsplit(move_folders{v},filesep);
+    staging_destFolder = ['/mnt/bigdrive/staging/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
+    
+    % Move current folder to archiving folder
+    mkdir(staging_destFolder);
+    movefile(move_folders{v}, staging_destFolder);
+    
+    % Copy files to archiving folder (move if it's the last folder)
+    if v ~= length(move_folders)
+        for curr_file = 1:length(move_files)
+            copyfile(move_files{curr_file},staging_destFolder);
+        end
+    else
+        for curr_file = 1:length(move_files)
+            movefile(move_files{curr_file},staging_destFolder);
+        end
+    end
+    
+    % After everything is copied to the big hard drive, move to subfolder
+    % in that drive which is later moved to tape (this two-step process is
+    % to prevent moving half-copied files to tape)
+    tape_destFolder = ['/mnt/bigdrive/toarchive/' ops.mouseName '_' ops.thisDate '_' move_folder_parts{end}];   
+    movefile(staging_destFolder,tape_destFolder);    
+    
+end
 
 % clean up dat files
 for v = 1:length(ops.vids)
