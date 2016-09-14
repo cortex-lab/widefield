@@ -35,7 +35,7 @@ if ~isfield(ops, 'verbose')
     ops.verbose = false;
 end
 
-rawDType = 'int16';
+rawDType = 'uint16';
 
 ntotframes          = ceil(sum(ops.Nframes));
 ops.NavgFramesSVD   = min(ops.NavgFramesSVD, ntotframes);
