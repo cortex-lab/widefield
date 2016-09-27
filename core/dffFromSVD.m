@@ -27,7 +27,9 @@ if simplerWay
 else
     
     % "the cleverer way" (get to use the old U?)
-    normalizeMat = bsxfun(@rdivide,flatU,flatU*V0)'*flatU;
+    test = bsxfun(@rdivide,flatU,flatU*V0); %DS
+    test(isnan(test(:))) = 0; %DS
+    normalizeMat = test'*flatU;
     newV = normalizeMat*newV;
     %newU = U;
     

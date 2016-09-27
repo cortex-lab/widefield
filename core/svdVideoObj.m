@@ -199,6 +199,12 @@ classdef svdVideoObj < handle
             delete(this.myUDP);
             
         end
+        
+        % AP 2016-08-16: draw ROI for mask before SVD
+        function roi(this)
+            this.ops = svdROI(this.ops);            
+        end
+        
     end
 end
 
