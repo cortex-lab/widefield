@@ -1,9 +1,11 @@
 
 
-function newV = dffFromSVD(U, V, meanImage)
-% function newV = dffFromSVD(U, V, meanImage)
+function [newU, newV] = dffFromSVD(U, V, meanImage)
+% function [newU, newV] = dffFromSVD(U, V, meanImage)
 % Function by K. Harris, edited by N. Steinmetz
 
+assert(nargout==2, 'behavior of dffFromSVD has changed, you must take new U and new V\n');
+   
 
 [nX, nY, nSVD] = size(U);
 flatU = reshape(U, nX*nY,nSVD);
@@ -14,10 +16,10 @@ V0 = meanV + mean(V,2);
 newV= bsxfun(@minus,V,mean(V,2));
 
 % Here the "simpler way" produces a new U and new V, where as "cleverer
-% way" produces just a new V that keeps the old U. As this function is
-% currently only returning new V, you MUST use cleverer way. In my test,
-% they came roughly equal. 
-simplerWay = false; 
+% way" produces just a new V that keeps the old U. We've decided that the
+% cleverer way generally adds more noise than you'd like to an
+% already-noise-amplifying computation. 
+simplerWay = true; 
 if simplerWay
         
     newU = reshape(bsxfun(@rdivide,flatU,(flatU*V0)), [nX nY nSVD]);
