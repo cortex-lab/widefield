@@ -204,7 +204,9 @@ ylabel('power');
 
 ax = subplot(4,4,[3 4 7 8 11 12 15 16]);
 hold off;
-q = imagesc(myData.U(:,:,thisComponentIndex));set(q, 'HitTest', 'off');
+thisU = myData.U(:,:,thisComponentIndex);
+q = imagesc(thisU);set(q, 'HitTest', 'off');
+caxis(prctile(thisU(:), [1 99]));
 hold on; 
 if myData.pixelMode
     plot(pY, pX, 'ro'); set(q, 'HitTest', 'off');

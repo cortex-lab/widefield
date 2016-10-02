@@ -221,6 +221,9 @@ if ud.playing
     
     ud = get(figHandle, 'UserData');
     ud.currentFrame = ud.currentFrame+ud.rate;
+    if ud.currentFrame>size(allData.V{1},2)
+        ud.currentFrame=1;
+    end
     set(figHandle, 'UserData', ud);
     
     if ~isempty(ud.WriterObj) && ud.recording

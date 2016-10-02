@@ -1,4 +1,4 @@
-function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
+function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, calcWin)
 % function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, window)
 %
 % Displays: A) the image of the brain for a certain time point and
@@ -48,7 +48,7 @@ nConditions = length(eLabels);
 
 fprintf(1, 'pre-calculation...\n');
 Fs = 1/median(diff(t));
-winSamps = window(1):1/Fs:window(2);
+winSamps = calcWin(1):1/Fs:calcWin(2);
 periEventTimes = bsxfun(@plus, eventTimes', winSamps); % rows of absolute time points around each event
 periEventV = zeros(nSV, length(eventTimes), length(winSamps));
 for s = 1:nSV

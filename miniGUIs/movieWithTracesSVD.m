@@ -1,13 +1,18 @@
 
 
-function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
-% function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath)
+function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath, varargin)
+% function movieWithTracesSVD(U, V, t, traces, movieSaveFilePath[, auxVid])
 % - U is yPix x xPix x nSV
 % - V is nSV x nTimePoints
 % - t is 1 x nTimePoints, the labels of V
 % - traces is a struct array with three fields:
 %   - t is 1 x nTimePoints
 %   - v is 1 x nTimePoints
+%   - name is a string
+% - auxVid is a struct array with fields:
+%   - data is a cell with any required data, e.g. {readerObject, timestamps}
+%   - f is a function handle that will be called to show a frame like this:
+%       f(ax, currentTime, data)
 %   - name is a string
 %
 % Usage:
@@ -35,6 +40,11 @@ if exist('traces','var') && ~isempty(traces)
 else
     allData.traces = [];
 end
+if ~isempty(varargin)
+    allData.auxVid = varargin{1};
+else
+    allData.auxVid = [];
+end
 
 figHandle = figure; 
 
@@ -44,6 +54,7 @@ ud.playing = true;
 ud.figInitialized = false;
 ud.pixel = {[1 1]};
 ud.pixelTrace = (squeeze(allData.U(ud.pixel{1}(1), ud.pixel{1}(2), :))' * allData.V)';
+ud.numPanels = 2+numel(allData.auxVid);
 
 ud.cax = [-0.4 0.4];
 
@@ -96,7 +107,7 @@ nColors = ud.nColors; pixColors = ud.pixColors;
 cax = ud.cax;
 
 if ~ud.figInitialized
-    ax = subtightplot(1,2,1, 0.01, 0.01, 0.01);    
+    ax = subtightplot(1,ud.numPanels,1, 0.01, 0.01, 0.01);    
 %     ax = axes();
     ud.ImageAxisHandle = ax;
     myIm = imagesc(svdFrameReconstruct(allData.U, allData.V(:, ud.currentFrame)));     
@@ -117,7 +128,7 @@ if ~ud.figInitialized
     nSP = length(allData.traces)+1;
     currTime = allData.t(ud.currentFrame);    
     for tInd = 1:nSP-1
-        ax = subtightplot(nSP,2,(tInd-1)*2+2, 0.01, 0.01, 0.01);
+        ax = subtightplot(nSP,ud.numPanels,(tInd-1)*ud.numPanels+2, 0.01, 0.01, 0.01);
         ud.traceAxes(tInd) = ax;
         thisT = allData.traces(tInd).t;
         inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
@@ -139,7 +150,7 @@ if ~ud.figInitialized
     end
     
     % one more for the selected pixel
-    ax = subtightplot(nSP,2,(nSP-1)*2+2, 0.01, 0.01, 0.01);
+    ax = subtightplot(nSP,ud.numPanels,(nSP-1)*ud.numPanels+2, 0.01, 0.01, 0.01);
     ud.traceAxes(nSP) = ax;
     thisT = allData.t;
     inclT = find(thisT>currTime-windowSize/2,1):find(thisT<currTime+windowSize/2,1,'last');
@@ -152,6 +163,18 @@ if ~ud.figInitialized
     ud.traceZeroBars(nSP) = q;
     xlim([currTime-5 currTime+5]);
     makepretty;
+    
+    
+    % any auxVids
+    if ~isempty(allData.auxVid)
+        for v = 1:numel(allData.auxVid)
+            ax = subtightplot(1,ud.numPanels,v+2, 0.01, 0.01, 0.01);
+            allData.auxVid(v).f(ax, currTime, allData.auxVid(v).data);
+            title(allData.auxVid(v).name);
+            ud.auxAxes(v) = ax;
+        end
+    end
+    
     
     ud.figInitialized = true;
     set(figHandle, 'UserData', ud);
@@ -212,6 +235,14 @@ if ud.playing
         end
         xlim(ax, [currTime-windowSize/2 currTime+windowSize/2]);
         
+    end
+    
+    % any auxVids
+    if ~isempty(allData.auxVid)
+        for v = 1:numel(allData.auxVid)
+            ax = ud.auxAxes(v);
+            allData.auxVid(v).f(ax, currTime, allData.auxVid(v).data);
+        end
     end
     
     drawnow;

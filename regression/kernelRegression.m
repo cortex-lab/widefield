@@ -28,6 +28,11 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, e
 % "intercept" for the same event with values 1
 % - Some future version could also allow for fitting as a sum of basis
 % functions rather than this simplified "1's" method
+% - could hypothetically allow for a kernel that is super-sampled in time
+% (would probably need to be using basis functions)
+% - should add the ability to fit also a continuous signal, in the same way
+% using a toeplitz version of the vector. Would first interpolate it to the
+% frame times. 
 
 Fs = 1/mean(diff(t));
 nT = length(t);
@@ -116,6 +121,8 @@ if nargout>1
     % return the predicted signal, given the kernels
     predictedSignals = (A(1:nT,:)*X)';
 end
+
+fprintf(1, 'done.\n');
 
 
 function X = solveLinEq(A, B)
