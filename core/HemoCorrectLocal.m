@@ -61,6 +61,10 @@ pixAux = fVaux*Usub';
 
 ScaleFactor = sum(pixTrace.*pixAux) ./ sum(pixAux.*pixAux);
 
+% set NaN ScaleFactor values to zero (happens if ROI, or artifacts)
+% AP 160930
+ScaleFactor(isnan(ScaleFactor)) = 0;
+
 % plot it
 figure;
 imagesc(1:pixSpace:xSize, 1:pixSpace:ySize,reshape(ScaleFactor, size(pixY)));

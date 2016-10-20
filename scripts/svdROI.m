@@ -1,5 +1,5 @@
 function ops = svdROI(ops)
-% ops = svdROI_temp(ops)
+% ops = svdROI(ops)
 %
 % Makes average image from movie, promts for drawn ROI
 % makes ops.roi field which is applied in SVD (outside ROI set to zero)
