@@ -33,6 +33,9 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, e
 % - should add the ability to fit also a continuous signal, in the same way
 % using a toeplitz version of the vector. Would first interpolate it to the
 % frame times. 
+% - need to take care of "unpredictable point" - out of range of anything -
+% here rather than in inputs, since otherwise they artificially inflate cv
+% scores (predict zero and get zero a lot). 
 
 Fs = 1/mean(diff(t));
 nT = length(t);
@@ -47,6 +50,7 @@ end
 % return nSig x 1, the performance on each signal to be predicted.
 % cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
 cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
+% cvEvalFunc = @(pred, actual)1- var(pred-actual)./var(actual);
 
 for w = 1:length(windows)
     startOffset(w) = round(windows{w}(1)*Fs);
@@ -128,10 +132,13 @@ fprintf(1, 'done.\n');
 function X = solveLinEq(A, B)
 % This is just mldivide, but it turns out to be faster, empirically, to
 % make the variables gpuArrays and use pinv instead. 
-
-gA = gpuArray(single(A));
-gB = gpuArray(single(B));
-X = gather(pinv(gA)*gB);
-
-% X = A\B;
+X = A\B;
+% try
+%     gA = gpuArray(single(A));
+%     gB = gpuArray(single(B));
+%     X = gather(pinv(gA)*gB);
+% catch 
+%     fprintf('gpu didn''t work. trying without.\n');
+%     X = A\B;
+% end
 

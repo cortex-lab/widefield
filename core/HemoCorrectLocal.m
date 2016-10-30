@@ -60,6 +60,7 @@ pixAux = fVaux*Usub';
 % Cov(v1, v2)/var(v2), for each column
 
 ScaleFactor = sum(pixTrace.*pixAux) ./ sum(pixAux.*pixAux);
+ScaleFactor(isnan(ScaleFactor)) = 0;
 
 % plot it
 figure;

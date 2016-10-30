@@ -114,6 +114,7 @@ if ~ud.figInitialized
     ud.ImageHandle = myIm;
     caxis(cax);
     colormap(colormap_blueblackred);
+    %colormap parula
     axis equal tight;
     colorbar    
 %     set(myIm, 'HitTest', 'off');
@@ -139,7 +140,12 @@ if ~ud.figInitialized
         ud.traceHandles{tInd} = q;
         axis off
         xlim([currTime-windowSize/2 currTime+windowSize/2]);
-        yl = ylim();
+        if isfield(allData.traces(tInd), 'lims') && ~isempty(allData.traces(tInd).lims)
+            yl = allData.traces(tInd).lims;
+            ylim(yl);
+        else
+            yl = ylim();
+        end
         hold on;
         q = plot([currTime currTime], yl, 'k--');
         ud.traceZeroBars(tInd) = q;
@@ -312,7 +318,7 @@ switch lower(keydata.Key)
         ud.playing = ~ud.playing;
     case 'r' %start/stop recording
         ud.recording = ~ud.recording;
-        if ud.recording
+        if ~isempty(ud.WriterObj) && ud.recording
             set(figHandle, 'Name', 'RECORDING');
         else
             set(figHandle, 'Name', 'Not recording.');
