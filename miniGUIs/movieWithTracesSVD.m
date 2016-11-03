@@ -341,7 +341,10 @@ switch lower(keydata.Key)
         ud.cax = ud.cax*1.25;
         caxis(ud.ImageAxisHandle, ud.cax);
     case 'b'
-        ud.currentFrame = ud.currentFrame-20*ud.rate;    
+        ud.currentFrame = ud.currentFrame-20*ud.rate;  
+        if ud.currentFrame<1
+            ud.currentFrame = 1;
+        end
         
 end
 set(figHandle, 'UserData', ud);
