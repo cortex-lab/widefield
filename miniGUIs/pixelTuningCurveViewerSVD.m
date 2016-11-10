@@ -33,7 +33,7 @@ function pixelTuningCurveViewerSVD(U, V, t, eventTimes, eventLabels, calcWin)
 % workspace as an roi structure containing roi.traces, roi.mask (the mask
 % that makes up the roi), and roi.im (the first SVD with the ROI outlined)
 
-
+fprintf(1, 'pre-calculation...\n');
 t = t(:)'; % make row
 eventTimes = eventTimes(:)';
 [eventTimes, ii] = sort(eventTimes);
@@ -46,24 +46,12 @@ nSV = size(U,3);
 eLabels = unique(eventLabels);
 nConditions = length(eLabels);
 
-fprintf(1, 'pre-calculation...\n');
 Fs = 1/median(diff(t));
 winSamps = calcWin(1):1/Fs:calcWin(2);
-periEventTimes = bsxfun(@plus, eventTimes', winSamps); % rows of absolute time points around each event
-periEventV = zeros(nSV, length(eventTimes), length(winSamps));
-for s = 1:nSV
-    periEventV(s,:,:) = interp1(t, V(s,:), periEventTimes);
-end
 
-avgPeriEventV = zeros(nConditions, nSV, length(winSamps));
-for c = 1:nConditions
-    if iscell(eventLabels)
-        thisCondEvents = cellfun(@(x)strcmp(x,eLabels(c)),eventLabels);
-    else
-        thisCondEvents = eventLabels==eLabels(c);
-    end
-    avgPeriEventV(c,:,:) = squeeze(nanmean(periEventV(:,thisCondEvents,:),2));
-end
+[avgPeriEventV, ~] = eventLockedAvgSVD(U, V, t, eventTimes, eventLabels, calcWin);
+
+
 fprintf(1, 'done.\n');
 
 allData.U = U;

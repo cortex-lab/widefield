@@ -32,3 +32,7 @@ else
 
     V = detrendAndFilt(V, Fs);
 end
+
+if length(t)==size(V,2)+1 % happens if there was an extra blue frame at the end
+    t = t(1:end-1);
+end

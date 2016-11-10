@@ -73,12 +73,14 @@ for ev = 1:length(eventTimes)
         theseEventValues = eventValues{ev}(sortI);
     end
     
+    % populate the toeplitz matrix with appropriate event values
     for w = 1:nWinSamps(ev)
         theseSamps = eventFrames+w;
         inRange = theseSamps>0&theseSamps<=size(A,1);
         A(theseSamps(inRange),csWins(ev)+w) = theseEventValues(inRange);
     end
     
+    % add regularization at the end of the A matrix
     if lambda>0
         inSignal(:,end+1:end+nWinSamps(ev)) = 0;
         A(end+1:end+nWinSamps(ev),csWins(ev)+1:csWins(ev)+nWinSamps(ev)) = diag(lambda*ones(1,nWinSamps(ev)));
