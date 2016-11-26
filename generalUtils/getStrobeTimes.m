@@ -19,6 +19,9 @@ switch rigName
     case 'bigrig1'
         strobeName = 'cam1';
         strobeThresh = 2;
+    case 'kilotrode'
+        strobeName = 'pcoExposure';
+        strobeThresh = 2;    
     otherwise
         error('getStrobeTimes doesn''t recognize rig name %s', rigName);
 end

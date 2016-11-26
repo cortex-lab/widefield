@@ -20,13 +20,15 @@ function dataSummary = loadRawToDat(ops)
 % - verbose - logical, whether to display status messages
 % - rawDataType - can be "tif" or "customPCO", specifies how to load the
 % images
-% - hasBinaryStamps - specifies whether the raw images have data encoded in
+% - hasBinaryStamp - specifies whether the raw images have data encoded in
 % binary stamps (these are PCO Edge cameras)
 % - hasASCIIstamp - specifies whether there are also ASCII stamps which
 % will be removed before binning/saving
 % - binning - an integer N that specifies to apply N x N binning first
-% - 
-
+% - frameMod - specifying which images to pull out of the tif files
+%    - images included are those for which: mod(frameNumber,
+%    frameMod(1))==frameMod(2). So [1 0] takes all images. 
+% - flipudVid - logical, whether to flip up/down. 
 extraVerbose = false;
 
 theseFiles = ops.theseFiles;
