@@ -149,7 +149,7 @@ classdef svdVideoObj < handle
                     this.ops.emailAddress = 'nick.steinmetz@gmail.com'; 
                 case 'andy'
                     this.ops.emailAddress = 'peters.andrew.j@gmail.com';
-                case 'Pip'
+                case 'pip'
                     this.ops.emailAddress = 'pipcoen@gmail.com';
                 otherwise
                     this.ops.emailAddress = [];
