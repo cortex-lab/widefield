@@ -116,6 +116,7 @@ if ~ud.figInitialized
     colormap(colormap_blueblackred);
     %colormap parula
     axis equal tight;
+    axis image
     colorbar    
 %     set(myIm, 'HitTest', 'off');
     set(myIm, 'ButtonDownFcn', @(f,k)movieCallbackClick(f, k, allData, figHandle));

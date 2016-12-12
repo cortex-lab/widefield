@@ -1,5 +1,9 @@
 
 function pixelCorrelationViewerSVD(U, V)
+% function pixelCorrelationViewerSVD(U, V)
+% Computes and displays the correlation map of any pixel with all the
+% others
+%
 % U is Ysize x Xsize x S
 % V is S x T
 %
@@ -8,6 +12,8 @@ function pixelCorrelationViewerSVD(U, V)
 % - Use the arrow keys to move around little by little
 % - Press "V" to change the way the variance is calculated, to emphasize
 % areas with large signals.
+% - press "h" to enable/disable hovering, i.e. compute map for wherever
+% your mouse cursor
 
 % to compute correlation matrix from SVD, all at once:
 % Ur = reshape(U, size(U,1)*size(U,2),[]); % P x S
@@ -37,12 +43,14 @@ corrData.varP = varP;
 
 ud.pixel = [1 1];
 ud.varCalcMax = false;
+ud.hoverEnable = false;
 
 f = figure;
 corrData.f = f;
 
 set(f, 'UserData', ud);
 set(f, 'KeyPressFcn', @(f,k)pixelCorrCallback(f, k, corrData, ySize, xSize));
+set(f,'windowbuttonmotionfcn',@(f,k)fh_wbmfcn(f,k, corrData, ySize, xSize)); % Set the motion detector.
 
 showCorrMat(corrData, ySize, xSize, ud);
 
@@ -179,9 +187,50 @@ switch newKey
         pixel(1) = min(ySize, pixel(1)+increment);
     case 'v'
         varCalcMax = ~varCalcMax;
+    case 'h' % enable hovering calculation
+        ud.hoverEnable = ~ud.hoverEnable;
+        fprintf(1, 'toggle hover\n');
 end
 
 ud.pixel = pixel;
 ud.varCalcMax = varCalcMax;
 set(f, 'UserData', ud);
 showCorrMat(corrData, ySize, xSize, ud);
+
+function [] = fh_wbmfcn(f,k, corrData, ySize, xSize)
+% WindowButtonMotionFcn for the figure.
+
+ud = get(f, 'UserData');
+if ud.hoverEnable
+    ch = get(f, 'Children');
+    % assuming there is exactly one axes
+    [~, ind] = ismember('axes', get(ch, 'Type'));
+    ax = ch(ind);
+    set(ax,'unit','pix');
+    axp = get(ax, 'Position');
+    xlm = get(ax,'xlim');
+    ylm = get(ax,'ylim');
+    dfx = diff(xlm);
+    dfy = diff(ylm);
+
+    currPoint = get(f,'currentpoint');  % The current point w.r.t the figure.
+    % Figure out of the current point is over the axes or not -> logicals.
+    tf1 = axp(1) <= currPoint(1) && currPoint(1) <= axp(1) + axp(3);
+    tf2 = axp(2) <= currPoint(2) && currPoint(2) <= axp(2) + axp(4);
+
+    if tf1 && tf2
+        % Calculate the current point w.r.t. the axes.
+        Cx =  xlm(1) + (currPoint(1)-axp(1)).*(dfx/axp(3));
+        Cy =  ylm(1) + (currPoint(2)-axp(2)).*(dfy/axp(4));
+        %set(S.tx(2),'str',num2str([Cx,Cy],2))
+        
+        pixel = round([ylm(2)-Cy Cx]);
+
+        ud = get(f, 'UserData');
+        ud.pixel = pixel;
+        set(f, 'UserData', ud);
+        
+        showCorrMat(corrData, ySize, xSize, ud);
+
+    end
+end

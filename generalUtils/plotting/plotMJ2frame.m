@@ -13,6 +13,7 @@ if ~isempty(thisFrame)
         imagesc(img); 
         colormap(gca, 'gray'); 
         axis off
+        axis image
     else
         set(imHand, 'CData', img);
     end

@@ -121,15 +121,18 @@ angle_diff = sind(Vdir-Hdir);
 signMap = imgaussfilt(angle_diff,1);
 
 f = figure;set(f, 'Color', 'w');
-subplot(1,2,1)
+subtightplot(1,2,1)
 imagesc(signMap);
 axis off;
+axis image
 title('Visual sign field');
 
-ax = subplot(1,2,2);
+ax = subtightplot(1,2,2);
 
 im = imagesc(signMap);
 set(im, 'AlphaData', mimg, 'AlphaDataMapping', 'scaled');
 set(ax, 'Color', 'k');
 set(ax, 'XTickLabel', '', 'YTickLabel', '');
+axis image
 box off
+colormap(colormap_RedWhiteBlue)
