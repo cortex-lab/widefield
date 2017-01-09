@@ -1,6 +1,6 @@
 
 
-function signMap = sparseRetinotopy(U, V, t, stimPositions, stimTimes, mimg)
+function [signMap, xMap, yMap] = sparseRetinotopy(U, V, t, stimPositions, stimTimes, mimg)
 % TODO:
 % - add plot of peak RF locations
 
