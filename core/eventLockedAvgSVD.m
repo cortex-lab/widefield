@@ -26,9 +26,10 @@ eventTimes = eventTimes(:)';
 [eventTimes, ii] = sort(eventTimes);
 sortedLabels = eventLabels(ii);
 
-Ypix = size(U,1);
-Xpix = size(U,2);
-nSV = size(U,3);
+% Ypix = size(U,1);
+% Xpix = size(U,2);
+% nSV = size(U,3);
+nSV = size(V,1);
 
 eLabels = unique(eventLabels);
 nConditions = length(eLabels);
