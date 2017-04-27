@@ -12,7 +12,7 @@ binSize = 1/Fs;
 trf = win(1):binSize:win(2);
 peakInds = trf>0.08 & trf<0.18; 
 bslInd = 1;
-resizeScale = 3;
+resizeScale = 2;
 filterSigma = 1.5*resizeScale;
 
 V = V(1:nSV,:);
@@ -70,27 +70,33 @@ end
 toc
 
 %%
-% fprintf(1, 'finding max...\n');
-% [mc,mi] = max(reshape(rfMapPixSm,[],nPix),[],1);
-% [xMax, yMax] = ind2sub(size(rfMapPixSm), mi);
-% 
-% xMap = reshape(xMax, [size(U,1) size(U,2)]);
-% yMap = reshape(yMax, [size(U,1) size(U,2)]);
 
-fprintf(1, 'finding center of mass...\n'); 
-rfMapPixSmFlat = reshape(permute(rfMapPixSm, [3 1 2]), nPix, []);
-% [xx,yy] = meshgrid(1:size(rfMapPixSm,1), 1:size(rfMapPixSm,2));
-[xx,yy] = meshgrid(linspace(min(xPos), max(xPos),size(rfMapPixSm,1)), ...
-    linspace(min(yPos), max(yPos),size(rfMapPixSm,2)));
-xx = reshape(xx', [],1); yy = reshape(yy', [],1);
+algType = 'centerOfMass'; % max or centerOfMass
+
+switch algType
+    case 'max'
+        fprintf(1, 'finding max...\n');
+        [mc,mi] = max(reshape(rfMapPixSm,[],nPix),[],1);
+        [xMax, yMax] = ind2sub(size(rfMapPixSm), mi);
+
+        xMap = reshape(xMax, [size(U,1) size(U,2)]);
+        yMap = reshape(yMax, [size(U,1) size(U,2)]);
+    otherwise %case 'centerOfMass'
+        fprintf(1, 'finding center of mass...\n'); 
+        rfMapPixSmFlat = reshape(permute(rfMapPixSm, [3 1 2]), nPix, []);
+        % [xx,yy] = meshgrid(1:size(rfMapPixSm,1), 1:size(rfMapPixSm,2));
+        [xx,yy] = meshgrid(linspace(min(xPos), max(xPos),size(rfMapPixSm,1)), ...
+            linspace(min(yPos), max(yPos),size(rfMapPixSm,2)));
+        xx = reshape(xx', [],1); yy = reshape(yy', [],1);
 
 
-rfMapPixSmFlat = rfMapPixSmFlat.^2;
+        rfMapPixSmFlat = rfMapPixSmFlat.^2;
 
-cy = bsxfun(@rdivide, rfMapPixSmFlat*xx, sum(rfMapPixSmFlat,2));
-cx = bsxfun(@rdivide, rfMapPixSmFlat*yy, sum(rfMapPixSmFlat,2));
-xMap = reshape(cx, [size(U,1) size(U,2)]);
-yMap = reshape(cy, [size(U,1) size(U,2)]);
+        cy = bsxfun(@rdivide, rfMapPixSmFlat*xx, sum(rfMapPixSmFlat,2));
+        cx = bsxfun(@rdivide, rfMapPixSmFlat*yy, sum(rfMapPixSmFlat,2));
+        xMap = reshape(cx, [size(U,1) size(U,2)]);
+        yMap = reshape(cy, [size(U,1) size(U,2)]);
+end
 
 figure;
 subplot(1,2,1); 

@@ -1,19 +1,15 @@
 
 
-function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, eventTimes, eventValues, windows, lambda, cvFold)
-% function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, eventTimes, eventValues, windows, lambda, cvFold)
+function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, t, predictorMat, windows, cvFold, lambda)
+% function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, t, predictorMat, windows, cvFold, lambda)
 %
 % Fits the "toeplitz regression" from Kenneth. 
 %
+% This version 2 expects you to provide the predictor matrix (A), size
+% nTimePoints x nPredictors
+%
 % -- inSignal is nS by nTimePoints, any number of signals to be fit
 % -- t is 1 by nTimePoints
-% -- eventTimes is a cell array of times of each event
-% -- eventValues is a cell array of "values" for each event, like if you want
-% different instances of the event to be fit with a scaled version of the
-% kernel. E.g. contrast of stimulus or velocity of wheel movement.
-% -- windows is a cell array of 2 by 1 windows, [startOffset endOffset]
-% -- lambda is a scalar, the regularization amount. 0 to do no
-% regularization
 % -- cvFold is 2 by 1, [foldSize, nToCalculate]. So [5 5] does 5-fold CV
 % and calculates the error on all five of the test sets. [5 1] still holds
 % out 20% but only does this once. 
@@ -37,6 +33,8 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression(inSignal, t, e
 % here rather than in inputs, since otherwise they artificially inflate cv
 % scores (predict zero and get zero a lot). 
 
+A = predictorMat;
+
 Fs = 1/mean(diff(t));
 nT = length(t);
 nSig = size(inSignal,1);
@@ -49,8 +47,8 @@ end
 % this is the function used to evaluate the cross validated error. Should
 % return nSig x 1, the performance on each signal to be predicted.
 % cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
-cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
-% cvEvalFunc = @(pred, actual)1- var(pred-actual)./var(actual);
+% cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
+cvEvalFunc = @(pred, actual)1- var(pred-actual)./var(actual);
 
 for w = 1:length(windows)
     startOffset(w) = round(windows{w}(1)*Fs);
@@ -60,32 +58,11 @@ nWinSampsTotal = sum(nWinSamps);
 csWins = cumsum([0 nWinSamps]);
 
 
-A = zeros(nT,nWinSampsTotal);
-
-for ev = 1:length(eventTimes)
-    [theseET, sortI] = sort(eventTimes{ev}(:)');
-    [tp, ii] = findNearestPoint(theseET, t);
-    eventFrames = ii+startOffset(ev); % the "frames", i.e. indices of t, at which the start of each event's window occurs
-    
-    if isempty(eventValues{ev})
-        theseEventValues = ones(size(eventFrames));
-    else
-        theseEventValues = eventValues{ev}(sortI);
-    end
-    
-    % populate the toeplitz matrix with appropriate event values
-    for w = 1:nWinSamps(ev)
-        theseSamps = eventFrames+w;
-        inRange = theseSamps>0&theseSamps<=size(A,1);
-        A(theseSamps(inRange),csWins(ev)+w) = theseEventValues(inRange);
-    end
-    
-    % add regularization at the end of the A matrix
-    if lambda>0
-        inSignal(:,end+1:end+nWinSamps(ev)) = 0;
-        A(end+1:end+nWinSamps(ev),csWins(ev)+1:csWins(ev)+nWinSamps(ev)) = diag(lambda*ones(1,nWinSamps(ev)));
-    end
-    
+% if A is too long, pad inSignal with zeros (assume A has regularization
+% rows)
+nRowA = size(A,1);
+if nRowA>nT
+    inSignal(:,end+1:end+nRowA-nT) = 0;
 end
 
 if cvFold(1)>0
@@ -118,7 +95,7 @@ else
     cvErr = [];
 end
 
-for ev = 1:length(eventTimes)
+for ev = 1:length(windows)
     fitKernels{ev} = X(csWins(ev)+1:csWins(ev+1),:);
 end
 
