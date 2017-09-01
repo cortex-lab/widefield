@@ -1,7 +1,7 @@
 
 
-function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, predictorMat, kernelLengths, cvFold, lambda)
-% function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, predictorMat, kernelLengths, cvFold, lambda)
+function [fitKernels, predictedSignals] = kernelRegression3(inSignal, predictorMat, cvp, cvFold, lambda)
+% function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, predictorMat, cvpartitionObj, cvFold, lambda)
 %
 % Fits the "toeplitz regression" from Kenneth. 
 %
@@ -14,7 +14,7 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, pre
 % and calculates the error on all five of the test sets. [5 1] still holds
 % out 20% but only does this once. 
 %
-% fit_kernels is a cell array of nS by nW fit kernels
+% fit_kernels is a vector
 %
 % Some future version of this function could allow uneven sampling of the
 % input signal, but this one doesn't. 
@@ -34,31 +34,12 @@ function [fitKernels, predictedSignals, cvErr] = kernelRegression2(inSignal, pre
 % scores (predict zero and get zero a lot). 
 
 A = predictorMat; 
-szIn = size(inSignal);
 [nSig, nT] = size(inSignal);
-
-predictableTimes = sum(A,2)>0;
-A = A(predictableTimes,:);
-inSignal = inSignal(:,predictableTimes(1:nT));
 
 if nargin<5
     lambda = 0; % if this is non-zero, does ridge regression
     cvFold = [0 0]; % number of folds of cross-validation to do
 end
-
-% this is the function used to evaluate the cross validated error. Should
-% return nSig x 1, the performance on each signal to be predicted.
-% cvEvalFunc = @(pred, actual)1-mean(mean((pred-actual).^2))/mean(mean(actual.^2));
-% cvEvalFunc = @(pred, actual)1- var(pred-actual); % here assume variance of actual is 1 - it is (or is close) if data were zscored. Otherwise you'd want to divide by it
-cvEvalFunc = @(pred, actual)1- var(pred-actual)./var(actual);
-
-% for w = 1:length(windows)
-%     startOffset(w) = round(windows{w}(1)*Fs);
-%     nWinSamps(w) = round(diff(windows{w})*Fs);
-% end
-% nWinSampsTotal = sum(nWinSamps);
-% csWins = cumsum([0 nWinSamps]);
-
 
 % if A is too long, pad inSignal with zeros (assume A has regularization
 % rows)
@@ -69,8 +50,6 @@ end
 
 if cvFold(1)>0
     
-    cvp = cvpartition(nT,'KFold', cvFold(1));
-    cvErr = zeros(nSig,cvFold(2));
     allPred = zeros(size(inSignal));
     for k = 1:cvFold(2)
         fprintf(1, 'cvFold %d/%d\n', k, cvFold(2))
@@ -88,23 +67,13 @@ if cvFold(1)>0
         trainSetPredictors = A(trainInds,:);
         X = solveLinEq(trainSetPredictors,trainSetObservations'); % X becomes nWinSampsTotal by nS 
     
-        predictedSignals = (A(testInds,:)*X);
-        testSetObservations = inSignal(:,testInds)';
-        cvErr(:,k) = cvEvalFunc(predictedSignals, testSetObservations);
+        predictedSignals = (A(testInds,:)*X);        
         allPred(:,testInds) = predictedSignals';
     end
     
-else
-    cvErr = 0;
 end
 fprintf(1, 'all data, for kernels\n')
 X = solveLinEq(A,inSignal'); % X becomes nWinSampsTotal by nS
-
-% split the fit values back out into individual kernels
-csWins = cumsum([0 kernelLengths]);
-for ev = 1:numel(kernelLengths)
-    fitKernels{ev} = X(csWins(ev)+1:csWins(ev+1),:);
-end
 
 predictedSignals = [];
 if nargout>1
@@ -113,15 +82,11 @@ if nargout>1
     else
         % return the predicted signal, given the kernels
         predictedSignals = (A(1:nT,:)*X)';
-    end
-    
-    predSigFull = zeros(szIn);
-    predSigFull(:,predictableTimes(1:nT)) = predictedSignals;
-    predictedSignals = predSigFull;
+    end    
     
 end
 
-
+fitKernels = X;
 
 fprintf(1, 'done.\n');
 

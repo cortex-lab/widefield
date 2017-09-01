@@ -141,7 +141,7 @@ if ~ud.figInitialized
         ud.traceHandles{tInd} = q;
         axis off
         xlim([currTime-windowSize/2 currTime+windowSize/2]);
-        if isfield(allData.traces(tInd), 'lims') && ~isempty(allData.traces(tInd).lims)
+        if isfield(allData.traces(tInd), 'lims') && ~isempty(allData.traces(tInd).lims) && diff(allData.traces(tInd).lims)>0
             yl = allData.traces(tInd).lims;
             ylim(yl);
         else
