@@ -14,7 +14,7 @@ newV= bsxfun(@minus,V,mean(V,2));
 
 % Soft df/f the fluorescence in U-space
 % (by a factor of 1 * the average fluorescence value, looks ok)
-df_softnorm = mean(meanImage(:))*1;
+df_softnorm = median(meanImage(:))*1;
 nonnormU = reshape(bsxfun(@rdivide,flatU,(flatU*V0)+df_softnorm), [nX nY nSVD]);
 
 % new df/f U's aren't orthonormal: re-cast df/f V's into old U space
