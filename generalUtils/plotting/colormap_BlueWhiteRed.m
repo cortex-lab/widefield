@@ -9,4 +9,4 @@ cm = ([n*ones(1,n), n:-1:0 ; ...
   
 cm = cm(end:-1:1,:);  
   
-colormap(cm);
+% colormap(cm);
