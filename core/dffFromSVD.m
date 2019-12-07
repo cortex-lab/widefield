@@ -17,8 +17,7 @@ V0 = meanV + mean(V,2);
 newV= bsxfun(@minus,V,mean(V,2));
 
 % Get (soft) dF/F in U-space by dividing U by average + soft
-% (soft = 0: this is changed from the median of the mean image)
-df_softnorm = 0;
+df_softnorm = median(meanImage(:))*1;
 nonnormU = reshape(bsxfun(@rdivide,flatU,reshape(meanImage,[],1)+df_softnorm), [nX nY nSVD]);
 
 % New df/f U's aren't orthonormal: re-cast df/f V's into old U space
